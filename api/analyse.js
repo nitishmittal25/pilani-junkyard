@@ -88,7 +88,7 @@ module.exports = async (req, res) => {
   const { appId, count = '150' } = req.query;
   if (!appId) return res.status(400).json({ error: 'appId is required' });
 
-  const numCount = Math.min(parseInt(count) || 150, 200000);
+  const numCount = Math.min(parseInt(count) || 200, 200000);
 
   try {
     // App info
