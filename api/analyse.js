@@ -139,9 +139,9 @@ module.exports = async (req, res) => {
       topGood:      extractPhrases(allReviews, [4, 5], 10),
       periodBreakdown: buildPeriodBreakdown(allReviews),
       reviews: allReviews.map(r => ({
-        userName:  r.userName,  || 'Anonymous',
+        userName:  r.userName || 'Anonymous',
         score:     r.score,
-        text:      r.content,  || '',
+        text:      r.content  || '',
         date:      r.at ? new Date(r.at).toISOString() : null,
         thumbsUp:  r.thumbsUpCount || '',
         version:   r.reviewCreatedVersion || '',
