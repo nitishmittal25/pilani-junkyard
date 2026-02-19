@@ -357,6 +357,36 @@
         <span id="status-text">Fetching reviews from Google Play…</span>
       </div>
 
+      <!-- ── SUMMARY INSIGHTS ── -->
+      <div id="summary-section" style="display:none;margin-top:1.8rem;margin-bottom:2rem;">
+        <div style="background:white;border:2.5px solid var(--border);border-radius:18px;padding:1.5rem;">
+    
+          <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;margin-bottom:0.6rem;">
+            🧠 Review Summary
+          </div>
+
+          <p id="summaryText" style="font-size:0.9rem;font-weight:600;color:var(--ink2);line-height:1.6;margin-bottom:1.2rem;"></p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;">
+      
+            <div>
+              <div style="font-weight:800;font-size:0.75rem;text-transform:uppercase;color:#059669;margin-bottom:0.4rem;">
+                What users like
+              </div>
+              <ul id="likes" style="padding-left:1.1rem;font-size:0.85rem;font-weight:600;color:var(--ink2);"></ul>
+            </div>
+
+            <div>
+              <div style="font-weight:800;font-size:0.75rem;text-transform:uppercase;color:#e11d48;margin-bottom:0.4rem;">
+                What can be improved
+              </div>
+              <ul id="improve" style="padding-left:1.1rem;font-size:0.85rem;font-weight:600;color:var(--ink2);"></ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       <div id="results"></div>
 
     </div>
@@ -479,6 +509,29 @@ async function fetchReviews() {
     const res  = await fetch(`${API_URL}?${new URLSearchParams({ appId, count })}`);
     const data = await res.json();
 
+    const insights = data.insights;
+    document.getElementById('summary-section').style.display = 'block';
+    document.getElementById("summaryText").innerText =
+      insights.summaryText;
+    
+    const likeList = document.getElementById("likes");
+    likeList.innerHTML = "";
+
+  insights.whatUsersLike.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = item.replace('_', ' ');
+    likeList.appendChild(li);
+  });
+
+  const improveList = document.getElementById("improve");
+  improveList.innerHTML = "";
+
+  insights.whatUsersWantImproved.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = item.replace('_', ' ');
+    improveList.appendChild(li);
+  });
+    
     if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
 
     lastData = data;
@@ -676,6 +729,7 @@ function renderResults(data) {
 
   // ── Assemble everything ──
   document.getElementById('results').innerHTML = `
+  document.getElementById('summary-section').style.display = 'none';
     ${headerHTML}
     ${sentimentHTML}
     ${periodHTML}
