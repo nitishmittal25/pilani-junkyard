@@ -659,169 +659,189 @@ async function fetchReviews() {
 // RENDER
 // ═══════════════════════════════════════════════════════════════════
 function renderResults(data) {
-  const { appName, appIcon, appRating, analysed, positive, negative, neutral,
-          sentiment, topIssues, topGood, reviews } = data;
+  function renderResults(data) {
+  const {
+    appName, appIcon, appRating, totalReviews, analysed,
+    positive, negative, neutral, sentiment,
+    topIssues, topGood, periodBreakdown, reviews: rvList
+  } = data;
 
-  const sentimentColor = sentiment === 'positive' ? '#059669' : sentiment === 'negative' ? '#e11d48' : '#ca8a04';
-  const sentimentLabel = sentiment === 'positive' ? '🟢 Predominantly Positive' : sentiment === 'negative' ? '🔴 Predominantly Negative' : '🟡 Mixed';
-  const iconHTML = appIcon ? `<img class="app-icon-sm" src="${appIcon}" alt="${appName}"/>` : `<div class="app-icon-placeholder">📱</div>`;
+  const sentimentColor = sentiment === 'positive' ? '#059669'
+                       : sentiment === 'negative' ? '#e11d48'
+                       : '#ca8a04';
+  const sentimentLabel = sentiment === 'positive' ? '🟢 Mostly Positive'
+                       : sentiment === 'negative' ? '🔴 Mostly Negative'
+                       : '🟡 Mixed';
 
-  // Build issues bars
-  const maxIssue = Math.max(...Object.values(topIssues), 1);
-  const issueHTML = Object.entries(topIssues).map(([theme, count]) => `
-    <div style="margin-bottom:0.7rem;">
-      <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.25rem;">
-        <span>${theme}</span><span style="color:var(--rose-deep)">${count}</span>
+  const iconHTML = appIcon
+    ? `<img class="app-icon-sm" src="${appIcon}" alt="${appName}" onerror="this.style.display='none'"/>`
+    : `<div class="app-icon-placeholder">📱</div>`;
+
+  // ── SENTIMENT BOXES ──
+  const sentimentHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.8rem;margin-bottom:1.5rem;">
+      <div style="background:#bbf7d0;border:2px solid #059669;border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:#059669">${positive}</div>
+        <div style="font-size:0.72rem;font-weight:800;color:#059669">POSITIVE (4★–5★)</div>
       </div>
-      <div style="background:var(--border);border-radius:99px;height:8px;">
-        <div style="background:linear-gradient(90deg,#fecdd3,#e11d48);width:${(count/maxIssue*100).toFixed(0)}%;height:8px;border-radius:99px;"></div>
+      <div style="background:#fecdd3;border:2px solid #e11d48;border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:#e11d48">${negative}</div>
+        <div style="font-size:0.72rem;font-weight:800;color:#e11d48">NEGATIVE (1★–2★)</div>
+      </div>
+      <div style="background:#fef08a;border:2px solid #ca8a04;border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:#ca8a04">${neutral}</div>
+        <div style="font-size:0.72rem;font-weight:800;color:#ca8a04">NEUTRAL (3★)</div>
+      </div>
+      <div style="background:#e9d5ff;border:2px solid #7c3aed;border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-size:0.95rem;font-weight:900;color:${sentimentColor};margin-bottom:0.3rem">${sentimentLabel}</div>
+        <div style="font-size:0.72rem;font-weight:800;color:#7c3aed">OVERALL SENTIMENT</div>
+      </div>
+    </div>`;
+
+  // ── PERIOD BREAKDOWN TABLE ──
+  let periodHTML = '';
+  if (periodBreakdown && Object.keys(periodBreakdown).length) {
+    const rows = Object.entries(periodBreakdown).map(([label, d]) => {
+      const pct5 = d.total ? ((d['5star'] / d.total) * 100).toFixed(0) : 0;
+      const barColor = d.avg >= 4 ? '#059669' : d.avg >= 3 ? '#ca8a04' : '#e11d48';
+      return `
+        <tr style="border-bottom:1px solid #e7e5e4;">
+          <td style="padding:0.75rem 0.8rem;font-weight:800;font-size:0.85rem;white-space:nowrap">${label}</td>
+          <td style="padding:0.75rem 0.8rem;text-align:center;font-weight:700">${d.total.toLocaleString('en-IN')}</td>
+          <td style="padding:0.75rem 0.8rem;text-align:center;">
+            <span style="font-weight:900;color:${barColor}">${d.avg}</span>
+          </td>
+          <td style="padding:0.75rem 0.8rem;text-align:center;color:#059669;font-weight:700">${d['5star']}</td>
+          <td style="padding:0.75rem 0.8rem;text-align:center;color:#84cc16;font-weight:700">${d['4star']}</td>
+          <td style="padding:0.75rem 0.8rem;text-align:center;color:#ca8a04;font-weight:700">${d['3star']}</td>
+          <td style="padding:0.75rem 0.8rem;text-align:center;color:#f97316;font-weight:700">${d['2star']}</td>
+          <td style="padding:0.75rem 0.8rem;text-align:center;color:#e11d48;font-weight:700">${d['1star']}</td>
+        </tr>`;
+    }).join('');
+
+    periodHTML = `
+      <div style="background:white;border:2.5px solid #e7e5e4;border-radius:18px;margin-bottom:1.5rem;overflow:hidden;">
+        <div style="background:linear-gradient(120deg,#bae6fd,#e9d5ff);padding:1rem 1.4rem;">
+          <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;">📅 Review Breakdown by Time Period</div>
+          <div style="font-size:0.78rem;color:#475569;font-weight:600;margin-top:0.2rem">How ratings have changed over time</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;">
+            <thead>
+              <tr style="background:#fafaf9;border-bottom:2px solid #e7e5e4;">
+                <th style="padding:0.6rem 0.8rem;text-align:left;font-size:0.72rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Period</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Total</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Avg ⭐</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#059669">5★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#84cc16">4★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#ca8a04">3★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#f97316">2★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#e11d48">1★</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+
+  // ── DYNAMIC ISSUES & GOOD POINTS ──
+  const maxIssue = topIssues?.length ? topIssues[0].count : 1;
+  const issueHTML = (topIssues || []).map(({ phrase, count }) => `
+    <div style="margin-bottom:0.65rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.22rem;">
+        <span style="text-transform:capitalize">${escHtml(phrase)}</span>
+        <span style="color:#e11d48;flex-shrink:0;margin-left:0.5rem">${count}x</span>
+      </div>
+      <div style="background:#e7e5e4;border-radius:99px;height:7px;">
+        <div style="background:linear-gradient(90deg,#fecdd3,#e11d48);width:${Math.max(4,(count/maxIssue*100)).toFixed(0)}%;height:7px;border-radius:99px;transition:width 0.5s ease;"></div>
       </div>
     </div>`).join('');
 
-  // Build good points bars
-  const maxGood = Math.max(...Object.values(topGood), 1);
-  const goodHTML = Object.entries(topGood).map(([theme, count]) => `
-    <div style="margin-bottom:0.7rem;">
-      <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.25rem;">
-        <span>${theme}</span><span style="color:var(--mint-deep)">${count}</span>
+  const maxGood = topGood?.length ? topGood[0].count : 1;
+  const goodHTML = (topGood || []).map(({ phrase, count }) => `
+    <div style="margin-bottom:0.65rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.22rem;">
+        <span style="text-transform:capitalize">${escHtml(phrase)}</span>
+        <span style="color:#059669;flex-shrink:0;margin-left:0.5rem">${count}x</span>
       </div>
-      <div style="background:var(--border);border-radius:99px;height:8px;">
-        <div style="background:linear-gradient(90deg,#bbf7d0,#059669);width:${(count/maxGood*100).toFixed(0)}%;height:8px;border-radius:99px;"></div>
+      <div style="background:#e7e5e4;border-radius:99px;height:7px;">
+        <div style="background:linear-gradient(90deg,#bbf7d0,#059669);width:${Math.max(4,(count/maxGood*100)).toFixed(0)}%;height:7px;border-radius:99px;transition:width 0.5s ease;"></div>
       </div>
     </div>`).join('');
 
-  // Review cards
-  const cardHTML = reviews.map((r, i) => {
-    const stars = '★'.repeat(r.score) + '☆'.repeat(5 - r.score);
-    const starClass = `s${r.score}`;
+  const themesHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="background:white;border:2.5px solid #fecdd3;border-radius:18px;padding:1.4rem;">
+        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.4rem;">⚠️ Top Issues</div>
+        <div style="font-size:0.72rem;color:#78716c;font-weight:600;margin-bottom:1rem;">Most mentioned words in 1★–2★ reviews</div>
+        ${issueHTML || '<div style="color:#78716c;font-size:0.85rem">Not enough negative reviews to analyse</div>'}
+      </div>
+      <div style="background:white;border:2.5px solid #bbf7d0;border-radius:18px;padding:1.4rem;">
+        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.4rem;">✅ What Users Love</div>
+        <div style="font-size:0.72rem;color:#78716c;font-weight:600;margin-bottom:1rem;">Most mentioned words in 4★–5★ reviews</div>
+        ${goodHTML || '<div style="color:#78716c;font-size:0.85rem">Not enough positive reviews to analyse</div>'}
+      </div>
+    </div>`;
+
+  // ── REVIEW CARDS ──
+  const cardHTML = (rvList || []).map((r, i) => {
+    const stars    = '★'.repeat(r.score) + '☆'.repeat(5 - r.score);
+    const starClass= `s${r.score}`;
     const initials = (r.userName || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-    const dateStr = r.date ? new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
-    const replyHTML = r.replyText ? `<div class="rv-reply"><div class="rv-reply-label">🏢 Developer Reply</div><div class="rv-reply-text">${escHtml(r.replyText)}</div></div>` : '';
+    const dateStr  = r.date ? new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+    const reply    = r.replyText
+      ? `<div class="rv-reply"><div class="rv-reply-label">🏢 Developer Reply</div><div class="rv-reply-text">${escHtml(r.replyText)}</div></div>`
+      : '';
     return `
       <div class="rv" style="animation-delay:${Math.min(i,15)*0.04}s">
         <div class="rv-top">
           <div class="rv-user">
             <div class="rv-avatar">${initials}</div>
-            <div><div class="rv-name">${escHtml(r.userName||'Anonymous')}</div>${r.version?`<div class="rv-version">v${r.version}</div>`:''}</div>
+            <div>
+              <div class="rv-name">${escHtml(r.userName || 'Anonymous')}</div>
+              ${r.version ? `<div class="rv-version">v${r.version}</div>` : ''}
+            </div>
           </div>
           <div class="rv-right">
             <div class="rv-stars ${starClass}">${stars}</div>
             <div class="rv-date">${dateStr}</div>
           </div>
         </div>
-        <div class="rv-text">${escHtml(r.text||'')}</div>
-        ${replyHTML}
+        <div class="rv-text">${escHtml(r.text || '')}</div>
+        ${reply}
         ${r.thumbsUp ? `<div class="rv-foot"><span class="rv-thumbs">👍 ${r.thumbsUp} found this helpful</span></div>` : ''}
       </div>`;
   }).join('');
 
+  // ── ASSEMBLE ──
   document.getElementById('results').innerHTML = `
-    <!-- App Header -->
     <div class="results-header">
       <div class="results-meta">
         ${iconHTML}
         <div>
-          <div class="results-title">${appName}</div>
-          <div class="results-sub">${analysed} reviews analysed · ${appRating ? appRating.toFixed(1) + '⭐ avg' : ''}</div>
+          <div class="results-title">${escHtml(appName)}</div>
+          <div class="results-sub">
+            ${analysed} reviews analysed
+            ${appRating ? ' · ' + parseFloat(appRating).toFixed(1) + '⭐ avg on Play Store' : ''}
+            ${totalReviews ? ' · ' + Number(totalReviews).toLocaleString('en-IN') + ' total reviews' : ''}
+          </div>
         </div>
       </div>
       <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
     </div>
 
-    <!-- Sentiment Summary -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.8rem;margin-bottom:1.5rem;">
-      <div style="background:var(--mint);border:2px solid var(--mint-deep);border-radius:16px;padding:1rem;text-align:center;">
-        <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;color:var(--mint-deep)">${positive}</div>
-        <div style="font-size:0.75rem;font-weight:800;color:var(--mint-deep)">POSITIVE (4★–5★)</div>
-      </div>
-      <div style="background:var(--rose);border:2px solid var(--rose-deep);border-radius:16px;padding:1rem;text-align:center;">
-        <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;color:var(--rose-deep)">${negative}</div>
-        <div style="font-size:0.75rem;font-weight:800;color:var(--rose-deep)">NEGATIVE (1★–2★)</div>
-      </div>
-      <div style="background:var(--lemon);border:2px solid var(--lemon-deep);border-radius:16px;padding:1rem;text-align:center;">
-        <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;color:var(--lemon-deep)">${neutral}</div>
-        <div style="font-size:0.75rem;font-weight:800;color:var(--lemon-deep)">NEUTRAL (3★)</div>
-      </div>
-      <div style="background:var(--lilac);border:2px solid var(--lilac-deep);border-radius:16px;padding:1rem;text-align:center;">
-        <div style="font-size:1rem;font-weight:900;color:${sentimentColor}">${sentimentLabel}</div>
-        <div style="font-size:0.75rem;font-weight:800;color:var(--lilac-deep);margin-top:0.3rem">OVERALL SENTIMENT</div>
-      </div>
-    </div>
+    ${sentimentHTML}
+    ${periodHTML}
+    ${themesHTML}
 
-    <!-- Issues + Good Points -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
-      <div style="background:white;border:2.5px solid var(--rose);border-radius:18px;padding:1.4rem;">
-        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">⚠️ Top Issues</div>
-        ${issueHTML}
-      </div>
-      <div style="background:white;border:2.5px solid var(--mint);border-radius:18px;padding:1.4rem;">
-        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">✅ What Users Love</div>
-        ${goodHTML}
-      </div>
+    <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">
+      📝 All Reviews <span style="font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:600;color:#78716c">(${(rvList||[]).length} shown)</span>
     </div>
-
-    <!-- Raw Reviews -->
-    <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">📝 All Reviews</div>
     ${cardHTML}
   `;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CSV EXPORT
-// ═══════════════════════════════════════════════════════════════════
-function exportCSV() {
-  if (!lastData) return;
-  const { appName, reviews } = lastData;
-
-  const headers = ['Username', 'Stars', 'Date', 'Review Text', 'Developer Reply', 'Helpful Votes', 'App Version'];
-  const rows = reviews.map(r => [
-    csvCell(r.userName),
-    r.score,
-    r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
-    csvCell(r.text),
-    csvCell(r.replyText || ''),
-    r.thumbsUp || 0,
-    r.version || '',
-  ]);
-
-  const csv   = [headers, ...rows].map(row => row.join(',')).join('\n');
-  const blob  = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
-  const url   = URL.createObjectURL(blob);
-  const a     = document.createElement('a');
-  a.href = url;
-  a.download = `${appName.replace(/\s+/g,'_')}_reviews_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════
-function csvCell(val) {
-  if (!val) return '';
-  return '"' + String(val).replace(/"/g, '""') + '"';
-}
-function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function setStatus(type, msg) {
-  const bar = document.getElementById('status');
-  bar.className = 'status-bar ' + type;
-  document.getElementById('status-text').textContent = msg;
-}
-function clearStatus() {
-  document.getElementById('status').className = 'status-bar';
-}
-function showError(msg) {
-  setStatus('error', msg);
-}
-
-// enter key
-document.getElementById('app-id').addEventListener('keydown', e => {
-  if (e.key === 'Enter') fetchReviews();
-});
 </script>
 </body>
 </html>
