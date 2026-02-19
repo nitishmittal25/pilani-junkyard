@@ -6,6 +6,6 @@
     "google-play-scraper": "^9.1.0"
   },
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   }
 }
