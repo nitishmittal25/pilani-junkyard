@@ -7,7 +7,7 @@
 //   rating — filter: 0 = all, 1-5 = specific star rating
 //   sort   — 1 = most relevant, 2 = newest, 3 = rating
 
-const gplay = require('google-play-scraper');
+const gplay = require('google-play-scraper').default || require('google-play-scraper');
 
 module.exports = async (req, res) => {
   // ── CORS headers so the frontend (any origin) can call this ──
