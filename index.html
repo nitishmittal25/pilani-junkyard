@@ -6,47 +6,38 @@
   <title>ReviewSnap — Google Play Scraper</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,600;9..144,800;9..144,900&display=swap" rel="stylesheet"/>
   <style>
-    /* ── RESET & TOKENS ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Baby palette */
-      --sky:      #bae6fd;
-      --sky-mid:  #7dd3fc;
-      --sky-deep: #0284c7;
-      --mint:     #bbf7d0;
-      --mint-deep:#059669;
-      --peach:    #fed7aa;
+      --sky:       #bae6fd;
+      --sky-mid:   #7dd3fc;
+      --sky-deep:  #0284c7;
+      --mint:      #bbf7d0;
+      --mint-deep: #059669;
+      --peach:     #fed7aa;
       --peach-deep:#ea580c;
-      --lemon:    #fef08a;
+      --lemon:     #fef08a;
       --lemon-deep:#ca8a04;
-      --lilac:    #e9d5ff;
+      --lilac:     #e9d5ff;
       --lilac-deep:#7c3aed;
-      --rose:     #fecdd3;
-      --rose-deep:#e11d48;
-      --butter:   #fef9c3;
-
-      --ink:    #1c1917;
-      --ink2:   #44403c;
-      --muted:  #78716c;
-      --border: #e7e5e4;
-      --card:   #ffffff;
-      --bg:     #fffbf7;
+      --rose:      #fecdd3;
+      --rose-deep: #e11d48;
+      --butter:    #fef9c3;
+      --ink:       #1c1917;
+      --ink2:      #44403c;
+      --muted:     #78716c;
+      --border:    #e7e5e4;
+      --card:      #ffffff;
+      --bg:        #fffbf7;
     }
 
     html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'Nunito', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    body { background: var(--bg); color: var(--ink); font-family: 'Nunito', sans-serif; min-height: 100vh; overflow-x: hidden; }
 
-    /* ── NAVBAR ── */
+    /* ── NAV ── */
     nav {
       position: sticky; top: 0; z-index: 300;
-      background: rgba(255,251,247,0.92);
+      background: rgba(255,251,247,0.93);
       backdrop-filter: blur(16px);
       border-bottom: 2.5px solid var(--border);
       padding: 0 2.5rem;
@@ -66,51 +57,33 @@
       font-size: 1.1rem;
     }
     .logo em { font-style: normal; color: var(--sky-deep); }
-
     .nav-right { display: flex; align-items: center; gap: 0.8rem; }
     .nav-pill {
       background: var(--lemon); color: var(--lemon-deep);
       border-radius: 99px; padding: 0.28rem 0.8rem;
       font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px;
     }
-    .github-link {
-      display: flex; align-items: center; gap: 0.4rem;
-      text-decoration: none; color: var(--muted);
-      font-size: 0.82rem; font-weight: 700;
-      padding: 0.4rem 0.8rem; border-radius: 99px;
-      border: 2px solid var(--border);
-      transition: all 0.2s;
-    }
-    .github-link:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
     /* ── HERO ── */
     .hero {
       background: linear-gradient(160deg, var(--butter) 0%, #fce7f3 50%, var(--sky) 100%);
       padding: 5rem 2.5rem 4rem;
-      position: relative; overflow: hidden;
-      text-align: center;
+      position: relative; overflow: hidden; text-align: center;
     }
-    /* Decorative blobs */
-    .blob {
-      position: absolute; border-radius: 50%;
-      filter: blur(0px); opacity: 0.45;
-      animation: drift linear infinite;
-    }
-    .b1 { width:160px;height:160px; background:var(--rose);   top:-40px;  left:-40px;  animation-duration:12s; animation-delay:0s; }
-    .b2 { width:100px;height:100px; background:var(--mint);   bottom:20px;left:8%;     animation-duration:9s;  animation-delay:1s; }
-    .b3 { width:200px;height:200px; background:var(--sky);    top:-60px;  right:-60px; animation-duration:14s; animation-delay:2s; }
-    .b4 { width:70px; height:70px;  background:var(--lemon);  bottom:30px;right:12%;   animation-duration:8s;  animation-delay:0.5s; }
-    .b5 { width:90px; height:90px;  background:var(--lilac);  top:40%;    left:3%;     animation-duration:11s; animation-delay:3s; }
-    .b6 { width:55px; height:55px;  background:var(--peach);  top:30%;    right:5%;    animation-duration:7s;  animation-delay:1.5s; }
+    .blob { position: absolute; border-radius: 50%; opacity: 0.45; animation: drift linear infinite; }
+    .b1 { width:160px;height:160px;background:var(--rose);  top:-40px; left:-40px;  animation-duration:12s;animation-delay:0s; }
+    .b2 { width:100px;height:100px;background:var(--mint);  bottom:20px;left:8%;    animation-duration:9s; animation-delay:1s; }
+    .b3 { width:200px;height:200px;background:var(--sky);   top:-60px; right:-60px; animation-duration:14s;animation-delay:2s; }
+    .b4 { width:70px; height:70px; background:var(--lemon); bottom:30px;right:12%;  animation-duration:8s; animation-delay:0.5s;}
+    .b5 { width:90px; height:90px; background:var(--lilac); top:40%;   left:3%;     animation-duration:11s;animation-delay:3s; }
+    .b6 { width:55px; height:55px; background:var(--peach); top:30%;   right:5%;    animation-duration:7s; animation-delay:1.5s;}
     @keyframes drift {
-      0%   { transform: translateY(0) rotate(0deg); }
-      33%  { transform: translateY(-22px) rotate(5deg); }
-      66%  { transform: translateY(10px) rotate(-5deg); }
-      100% { transform: translateY(0) rotate(0deg); }
+      0%  { transform:translateY(0) rotate(0deg); }
+      33% { transform:translateY(-22px) rotate(5deg); }
+      66% { transform:translateY(10px) rotate(-5deg); }
+      100%{ transform:translateY(0) rotate(0deg); }
     }
-
     .hero-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
-
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.5rem;
       background: white; border: 2.5px solid var(--border);
@@ -119,55 +92,34 @@
       margin-bottom: 1.8rem;
       box-shadow: 0 4px 16px rgba(0,0,0,0.07);
     }
-    .pulse-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--mint-deep);
-      animation: pulse 2s ease-in-out infinite;
-    }
+    .pulse-dot { width:8px;height:8px;border-radius:50%;background:var(--mint-deep);animation:pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:0.5} }
-
     .hero h1 {
       font-family: 'Fraunces', serif;
-      font-size: clamp(2.6rem, 6.5vw, 4.8rem);
+      font-size: clamp(2.6rem,6.5vw,4.8rem);
       font-weight: 900; line-height: 1.06;
-      letter-spacing: -2px; margin-bottom: 1.2rem;
-      color: var(--ink);
+      letter-spacing: -2px; margin-bottom: 1.2rem; color: var(--ink);
     }
     .hero h1 .accent {
       background: linear-gradient(120deg, var(--sky-deep), var(--lilac-deep));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .hero-sub {
-      font-size: 1.05rem; color: var(--muted);
-      line-height: 1.75; font-weight: 500;
-      max-width: 520px; margin: 0 auto 2.5rem;
-    }
+    .hero-sub { font-size:1.05rem;color:var(--muted);line-height:1.75;font-weight:500;max-width:520px;margin:0 auto 2.5rem; }
     .hero-stats {
-      display: flex; gap: 0; justify-content: center;
+      display: flex; justify-content: center;
       background: white; border: 2.5px solid var(--border);
-      border-radius: 18px; overflow: hidden; max-width: 480px;
-      margin: 0 auto;
+      border-radius: 18px; overflow: hidden; max-width: 480px; margin: 0 auto;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
     }
-    .hstat {
-      flex: 1; padding: 1.1rem 0.5rem; text-align: center;
-      border-right: 2px solid var(--border);
-    }
-    .hstat:last-child { border-right: none; }
-    .hstat-num { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; color: var(--ink); }
-    .hstat-lbl { font-size: 0.7rem; color: var(--muted); font-weight: 700; margin-top: 0.1rem; letter-spacing: 0.3px; }
+    .hstat { flex:1;padding:1.1rem 0.5rem;text-align:center;border-right:2px solid var(--border); }
+    .hstat:last-child { border-right:none; }
+    .hstat-num { font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;color:var(--ink); }
+    .hstat-lbl { font-size:0.7rem;color:var(--muted);font-weight:700;margin-top:0.1rem;letter-spacing:0.3px; }
 
-    /* ── MAIN SCRAPER CARD ── */
+    /* ── MAIN ── */
     .main { max-width: 980px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+    .card { background:var(--card);border:2.5px solid var(--border);border-radius:28px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.06); }
 
-    .card {
-      background: var(--card);
-      border: 2.5px solid var(--border);
-      border-radius: 28px; overflow: hidden;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.06);
-    }
-
-    /* card top coloured banner */
     .card-banner {
       background: linear-gradient(120deg, var(--sky), var(--lilac), var(--mint));
       background-size: 200% 200%;
@@ -175,232 +127,141 @@
       padding: 2rem 2.5rem 1.8rem;
       position: relative; overflow: hidden;
     }
-    @keyframes gradshift {
-      0%   { background-position: 0% 50%; }
-      50%  { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .card-banner::after {
-      content: '⭐';
-      position: absolute; right: 2rem; top: 50%;
-      transform: translateY(-50%);
-      font-size: 5rem; opacity: 0.18;
-    }
-    .card-banner h2 {
-      font-family: 'Fraunces', serif;
-      font-size: 1.5rem; font-weight: 900;
-      color: var(--ink); margin-bottom: 0.3rem;
-    }
-    .card-banner p { font-size: 0.88rem; color: var(--ink2); font-weight: 600; }
+    @keyframes gradshift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .card-banner::after { content:'⭐';position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:5rem;opacity:0.18; }
+    .card-banner h2 { font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;color:var(--ink);margin-bottom:0.3rem; }
+    .card-banner p  { font-size:0.88rem;color:var(--ink2);font-weight:600; }
 
     .card-body { padding: 2.5rem; }
 
     /* ── COMPANY CHIPS ── */
-    .section-label {
-      font-size: 0.7rem; font-weight: 800;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 0.9rem;
-    }
-    .company-chips {
-      display: flex; flex-wrap: wrap; gap: 0.6rem;
-      margin-bottom: 2rem;
-    }
+    .section-label { font-size:0.7rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.9rem; }
+    .company-chips { display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:2rem; }
     .chip {
-      display: flex; align-items: center; gap: 0.5rem;
-      background: var(--bg); border: 2.5px solid var(--border);
-      border-radius: 14px; padding: 0.55rem 1rem;
-      cursor: pointer; transition: all 0.18s;
-      font-family: 'Nunito', sans-serif;
+      display:flex;align-items:center;gap:0.5rem;
+      background:var(--bg);border:2.5px solid var(--border);
+      border-radius:14px;padding:0.55rem 1rem;
+      cursor:pointer;transition:all 0.18s;font-family:'Nunito',sans-serif;
     }
-    .chip:hover { border-color: var(--sky-deep); background: var(--sky); transform: translateY(-2px); }
-    .chip.active {
-      border-color: var(--sky-deep);
-      background: linear-gradient(120deg, var(--sky), var(--lilac));
-      box-shadow: 0 4px 14px rgba(2,132,199,0.2);
-    }
-    .chip-icon { font-size: 1.15rem; }
-    .chip-info {}
-    .chip-name { font-size: 0.8rem; font-weight: 800; color: var(--ink); line-height: 1; }
-    .chip-cat  { font-size: 0.62rem; color: var(--muted); font-weight: 600; line-height: 1; margin-top: 0.15rem; }
+    .chip:hover { border-color:var(--sky-deep);background:var(--sky);transform:translateY(-2px); }
+    .chip.active { border-color:var(--sky-deep);background:linear-gradient(120deg,var(--sky),var(--lilac));box-shadow:0 4px 14px rgba(2,132,199,0.2); }
+    .chip-icon { font-size:1.15rem; }
+    .chip-name { font-size:0.8rem;font-weight:800;color:var(--ink);line-height:1; }
+    .chip-cat  { font-size:0.62rem;color:var(--muted);font-weight:600;line-height:1;margin-top:0.15rem; }
 
     /* ── FORM ── */
-    .form-sep {
-      display: flex; align-items: center; gap: 1rem;
-      margin-bottom: 1.5rem; color: var(--muted);
-      font-size: 0.78rem; font-weight: 700;
-    }
-    .form-sep::before, .form-sep::after {
-      content: ''; flex: 1; height: 2px; background: var(--border);
-    }
-
-    .fg { margin-bottom: 1.2rem; }
-    .fl {
-      display: block; font-size: 0.72rem; font-weight: 800;
-      color: var(--muted); letter-spacing: 1px;
-      text-transform: uppercase; margin-bottom: 0.45rem;
-    }
+    .form-sep { display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;color:var(--muted);font-size:0.78rem;font-weight:700; }
+    .form-sep::before, .form-sep::after { content:'';flex:1;height:2px;background:var(--border); }
+    .fg { margin-bottom:1.2rem; }
+    .fl { display:block;font-size:0.72rem;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.45rem; }
     .fi, .fs {
-      width: 100%;
-      background: var(--bg); border: 2.5px solid var(--border);
-      border-radius: 13px; padding: 0.78rem 1.1rem;
-      color: var(--ink); font-family: 'Nunito', sans-serif;
-      font-size: 0.92rem; font-weight: 600;
-      outline: none; transition: all 0.2s;
+      width:100%;background:var(--bg);border:2.5px solid var(--border);
+      border-radius:13px;padding:0.78rem 1.1rem;
+      color:var(--ink);font-family:'Nunito',sans-serif;
+      font-size:0.92rem;font-weight:600;outline:none;transition:all 0.2s;
     }
-    .fi:focus, .fs:focus {
-      border-color: var(--sky-deep);
-      background: white;
-      box-shadow: 0 0 0 4px rgba(2,132,199,0.1);
-    }
-    .fi::placeholder { color: #c4b5a8; }
-    .frow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    .fi:focus, .fs:focus { border-color:var(--sky-deep);background:white;box-shadow:0 0 0 4px rgba(2,132,199,0.1); }
+    .fi::placeholder { color:#c4b5a8; }
+    .frow { display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem; }
 
-    /* fetch button */
     .fetch-btn {
-      width: 100%; padding: 1.05rem;
-      background: linear-gradient(120deg, var(--sky-deep) 0%, var(--lilac-deep) 100%);
-      color: white; border: none; border-radius: 16px;
-      font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 900;
-      cursor: pointer; transition: all 0.22s; letter-spacing: 0.3px;
-      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      width:100%;padding:1.05rem;
+      background:linear-gradient(120deg,var(--sky-deep) 0%,var(--lilac-deep) 100%);
+      color:white;border:none;border-radius:16px;
+      font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:900;
+      cursor:pointer;transition:all 0.22s;letter-spacing:0.3px;
+      display:flex;align-items:center;justify-content:center;gap:0.6rem;
     }
-    .fetch-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(124,58,237,0.3); }
-    .fetch-btn:active { transform: translateY(0); }
-    .fetch-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+    .fetch-btn:hover { transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,58,237,0.3); }
+    .fetch-btn:active { transform:translateY(0); }
+    .fetch-btn:disabled { opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none; }
 
-    /* ── STATUS BANNER ── */
-    .status-bar {
-      display: none; align-items: center; gap: 0.8rem;
-      margin-top: 1.5rem; padding: 1rem 1.2rem;
-      border-radius: 14px; border: 2px solid;
-      font-weight: 700; font-size: 0.88rem;
-    }
-    .status-bar.loading { display: flex; background: var(--sky);   border-color: var(--sky-mid);   color: var(--sky-deep); }
-    .status-bar.error   { display: flex; background: var(--rose);  border-color: var(--rose-deep); color: var(--rose-deep); }
-    .spin {
-      width: 20px; height: 20px; border-radius: 50%;
-      border: 3px solid rgba(2,132,199,0.2);
-      border-top-color: var(--sky-deep);
-      animation: rot 0.7s linear infinite; flex-shrink: 0;
-    }
-    @keyframes rot { to { transform: rotate(360deg); } }
+    /* ── STATUS ── */
+    .status-bar { display:none;align-items:center;gap:0.8rem;margin-top:1.5rem;padding:1rem 1.2rem;border-radius:14px;border:2px solid;font-weight:700;font-size:0.88rem; }
+    .status-bar.loading { display:flex;background:var(--sky);border-color:var(--sky-mid);color:var(--sky-deep); }
+    .status-bar.error   { display:flex;background:var(--rose);border-color:var(--rose-deep);color:var(--rose-deep); }
+    .spin { width:20px;height:20px;border-radius:50%;border:3px solid rgba(2,132,199,0.2);border-top-color:var(--sky-deep);animation:rot 0.7s linear infinite;flex-shrink:0; }
+    @keyframes rot { to{transform:rotate(360deg)} }
 
     /* ── RESULTS ── */
-    #results { margin-top: 2rem; }
+    #results { margin-top:2rem; }
     .results-header {
-      background: linear-gradient(120deg, var(--mint), var(--lemon));
-      border: 2.5px solid var(--mint-deep);
-      border-radius: 16px; padding: 1.1rem 1.4rem;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1.4rem;
+      background:linear-gradient(120deg,var(--mint),var(--lemon));
+      border:2.5px solid var(--mint-deep);border-radius:16px;
+      padding:1.1rem 1.4rem;
+      display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:0.8rem;margin-bottom:1.4rem;
     }
-    .results-meta { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
-    .app-icon-sm {
-      width: 44px; height: 44px; border-radius: 12px;
-      object-fit: cover; border: 2px solid white;
-    }
-    .app-icon-placeholder {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: var(--sky); display: flex; align-items: center;
-      justify-content: center; font-size: 1.4rem; border: 2px solid white;
-    }
-    .results-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 900; }
-    .results-sub   { font-size: 0.78rem; color: var(--mint-deep); font-weight: 700; margin-top: 0.1rem; }
+    .results-meta { display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap; }
+    .app-icon-sm  { width:44px;height:44px;border-radius:12px;object-fit:cover;border:2px solid white; }
+    .app-icon-placeholder { width:44px;height:44px;border-radius:12px;background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:2px solid white; }
+    .results-title { font-family:'Fraunces',serif;font-size:1.05rem;font-weight:900; }
+    .results-sub   { font-size:0.78rem;color:var(--mint-deep);font-weight:700;margin-top:0.1rem; }
     .export-btn {
-      background: white; border: 2.5px solid var(--mint-deep);
-      color: var(--mint-deep); border-radius: 99px;
-      padding: 0.45rem 1.1rem; font-size: 0.8rem; font-weight: 800;
-      cursor: pointer; font-family: 'Nunito', sans-serif;
-      transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem;
+      background:white;border:2.5px solid var(--mint-deep);color:var(--mint-deep);
+      border-radius:99px;padding:0.45rem 1.1rem;font-size:0.8rem;font-weight:800;
+      cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;
+      display:flex;align-items:center;gap:0.4rem;
     }
-    .export-btn:hover { background: var(--mint-deep); color: white; }
+    .export-btn:hover { background:var(--mint-deep);color:white; }
 
-    /* review card */
+    /* ── REVIEW CARDS ── */
     .rv {
-      background: white; border: 2.5px solid var(--border);
-      border-radius: 18px; padding: 1.3rem 1.5rem;
-      margin-bottom: 1rem;
-      animation: slideup 0.35s ease both;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      background:white;border:2.5px solid var(--border);
+      border-radius:18px;padding:1.3rem 1.5rem;margin-bottom:1rem;
+      animation:slideup 0.35s ease both;
+      transition:border-color 0.2s,box-shadow 0.2s;
     }
-    .rv:hover { border-color: var(--sky-mid); box-shadow: 0 4px 16px rgba(2,132,199,0.08); }
+    .rv:hover { border-color:var(--sky-mid);box-shadow:0 4px 16px rgba(2,132,199,0.08); }
     @keyframes slideup { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-
-    .rv-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
-    .rv-user { display: flex; align-items: center; gap: 0.7rem; }
-    .rv-avatar {
-      width: 38px; height: 38px; border-radius: 50%;
-      object-fit: cover; border: 2px solid var(--border);
-      background: var(--lemon); display: flex; align-items: center;
-      justify-content: center; font-size: 0.9rem; font-weight: 800;
-      color: var(--lemon-deep); flex-shrink: 0; overflow: hidden;
+    .rv-top   { display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.6rem; }
+    .rv-user  { display:flex;align-items:center;gap:0.7rem; }
+    .rv-avatar{
+      width:38px;height:38px;border-radius:50%;
+      border:2px solid var(--border);background:var(--lemon);
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.9rem;font-weight:800;color:var(--lemon-deep);flex-shrink:0;overflow:hidden;
     }
-    .rv-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .rv-name { font-weight: 800; font-size: 0.9rem; color: var(--ink); }
-    .rv-version { font-size: 0.65rem; color: var(--muted); font-weight: 600; margin-top: 0.1rem; }
-    .rv-right { text-align: right; flex-shrink: 0; }
-    .rv-stars { font-size: 0.95rem; margin-bottom: 0.15rem; letter-spacing: -1px; }
-    .rv-date  { font-size: 0.7rem; color: var(--muted); font-weight: 700; }
-    .rv-text  { font-size: 0.87rem; color: var(--ink2); line-height: 1.65; font-weight: 500; }
-
-    /* developer reply */
-    .rv-reply {
-      margin-top: 0.9rem; padding: 0.8rem 1rem;
-      background: var(--butter); border-left: 3px solid var(--lemon-deep);
-      border-radius: 0 10px 10px 0; font-size: 0.8rem;
-    }
-    .rv-reply-label { font-weight: 800; color: var(--lemon-deep); font-size: 0.72rem; margin-bottom: 0.3rem; letter-spacing: 0.3px; }
-    .rv-reply-text  { color: var(--ink2); line-height: 1.6; }
-
-    .rv-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 0.7rem; }
-    .rv-thumbs { font-size: 0.72rem; color: var(--muted); font-weight: 700; }
-
-    /* star colours */
-    .s1 { color: #ef4444; }
-    .s2 { color: #f97316; }
-    .s3 { color: #eab308; }
-    .s4 { color: #84cc16; }
-    .s5 { color: #22c55e; }
+    .rv-name    { font-weight:800;font-size:0.9rem;color:var(--ink); }
+    .rv-version { font-size:0.65rem;color:var(--muted);font-weight:600;margin-top:0.1rem; }
+    .rv-right   { text-align:right;flex-shrink:0; }
+    .rv-stars   { font-size:0.95rem;margin-bottom:0.15rem;letter-spacing:-1px; }
+    .rv-date    { font-size:0.7rem;color:var(--muted);font-weight:700; }
+    .rv-text    { font-size:0.87rem;color:var(--ink2);line-height:1.65;font-weight:500; }
+    .rv-reply   { margin-top:0.9rem;padding:0.8rem 1rem;background:var(--butter);border-left:3px solid var(--lemon-deep);border-radius:0 10px 10px 0;font-size:0.8rem; }
+    .rv-reply-label { font-weight:800;color:var(--lemon-deep);font-size:0.72rem;margin-bottom:0.3rem;letter-spacing:0.3px; }
+    .rv-reply-text  { color:var(--ink2);line-height:1.6; }
+    .rv-foot  { display:flex;align-items:center;justify-content:space-between;margin-top:0.7rem; }
+    .rv-thumbs{ font-size:0.72rem;color:var(--muted);font-weight:700; }
+    .s1{color:#ef4444} .s2{color:#f97316} .s3{color:#eab308} .s4{color:#84cc16} .s5{color:#22c55e}
 
     /* ── HOW IT WORKS ── */
-    .how-section {
-      background: linear-gradient(135deg, var(--lilac), var(--sky));
-      border-radius: 24px; padding: 2.5rem;
-      margin-top: 3rem; border: 2.5px solid var(--lilac-deep);
-    }
-    .how-title { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 900; margin-bottom: 1.5rem; }
-    .how-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; }
-    .how-step {
-      background: white; border-radius: 16px; padding: 1.3rem;
-      border: 2px solid rgba(255,255,255,0.8);
-    }
-    .how-num { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 900; color: var(--lilac-deep); margin-bottom: 0.5rem; }
-    .how-text { font-size: 0.85rem; font-weight: 600; color: var(--ink2); line-height: 1.6; }
+    .how-section { background:linear-gradient(135deg,var(--lilac),var(--sky));border-radius:24px;padding:2.5rem;margin-top:3rem;border:2.5px solid var(--lilac-deep); }
+    .how-title  { font-family:'Fraunces',serif;font-size:1.3rem;font-weight:900;margin-bottom:1.5rem; }
+    .how-steps  { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem; }
+    .how-step   { background:white;border-radius:16px;padding:1.3rem;border:2px solid rgba(255,255,255,0.8); }
+    .how-num    { font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--lilac-deep);margin-bottom:0.5rem; }
+    .how-text   { font-size:0.85rem;font-weight:600;color:var(--ink2);line-height:1.6; }
 
     /* ── FOOTER ── */
-    footer {
-      background: var(--ink); color: #a8a29e;
-      padding: 2.5rem; text-align: center;
-      font-size: 0.82rem; font-weight: 600;
-    }
-    footer a { color: var(--sky-mid); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    footer { background:var(--ink);color:#a8a29e;padding:2.5rem;text-align:center;font-size:0.82rem;font-weight:600; }
+    footer a { color:var(--sky-mid);text-decoration:none; }
+    footer a:hover { text-decoration:underline; }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 700px) {
-      nav { padding: 0 1rem; }
-      .hero { padding: 3.5rem 1.2rem 3rem; }
-      .card-body { padding: 1.5rem; }
-      .card-banner { padding: 1.5rem; }
-      .frow { grid-template-columns: 1fr; }
-      .main { padding: 2rem 1rem 4rem; }
-      .results-header { flex-direction: column; align-items: flex-start; }
+    @media(max-width:700px){
+      nav{padding:0 1rem;}
+      .hero{padding:3.5rem 1.2rem 3rem;}
+      .card-body{padding:1.5rem;}
+      .card-banner{padding:1.5rem;}
+      .frow{grid-template-columns:1fr;}
+      .main{padding:2rem 1rem 4rem;}
+      .results-header{flex-direction:column;align-items:flex-start;}
     }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════ NAV ═══════════════════════════════════ -->
+<!-- NAV -->
 <nav>
   <div class="logo">
     <div class="logo-icon">⭐</div>
@@ -408,70 +269,48 @@
   </div>
   <div class="nav-right">
     <span class="nav-pill">LIVE DATA</span>
-    <a class="github-link" href="https://github.com" target="_blank">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-      GitHub
-    </a>
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════ HERO ══════════════════════════════════ -->
+<!-- HERO -->
 <section class="hero">
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
   <div class="blob b4"></div><div class="blob b5"></div><div class="blob b6"></div>
   <div class="hero-inner">
     <div class="hero-badge">
       <span class="pulse-dot"></span>
-      Pulling real reviews from Google Play · No signup needed
+      Real reviews from Google Play · No signup needed
     </div>
-    <h1>Scrape Google Play<br/><span class="accent">reviews instantly</span></h1>
-    <p class="hero-sub">Pick any Indian app company below, hit fetch, and get real reviews straight from Google Play. Filter by stars, sort by date, export to CSV.</p>
+    <h1>Understand any app's<br/><span class="accent">reviews instantly</span></h1>
+    <p class="hero-sub">Pick any Indian app company, hit fetch, and get real reviews with sentiment analysis, time-period breakdown, issues, and what users love — all in one place.</p>
     <div class="hero-stats">
-      <div class="hstat">
-        <div class="hstat-num">Live</div>
-        <div class="hstat-lbl">Real Data</div>
-      </div>
-      <div class="hstat">
-        <div class="hstat-num">200+</div>
-        <div class="hstat-lbl">Reviews/fetch</div>
-      </div>
-      <div class="hstat">
-        <div class="hstat-num">CSV</div>
-        <div class="hstat-lbl">Export</div>
-      </div>
-      <div class="hstat">
-        <div class="hstat-num">Free</div>
-        <div class="hstat-lbl">Always</div>
-      </div>
+      <div class="hstat"><div class="hstat-num">Live</div><div class="hstat-lbl">Real Data</div></div>
+      <div class="hstat"><div class="hstat-num">200+</div><div class="hstat-lbl">Reviews/fetch</div></div>
+      <div class="hstat"><div class="hstat-num">CSV</div><div class="hstat-lbl">Export</div></div>
+      <div class="hstat"><div class="hstat-num">Free</div><div class="hstat-lbl">Always</div></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════ MAIN ══════════════════════════════════ -->
+<!-- MAIN -->
 <div class="main">
   <div class="card">
-
-    <!-- banner -->
     <div class="card-banner">
       <h2>🔍 Google Play Review Scraper</h2>
-      <p>Select a company, choose filters, and fetch live reviews from Google Play Store.</p>
+      <p>Select a company, choose filters, and fetch live reviews with full analysis.</p>
     </div>
-
     <div class="card-body">
 
-      <!-- COMPANY CHIPS -->
       <div class="section-label">Popular Indian App Companies</div>
       <div class="company-chips" id="chips"></div>
 
       <div class="form-sep">or enter any package ID manually</div>
 
-      <!-- MANUAL INPUT -->
       <div class="fg">
         <label class="fl">Google Play Package ID</label>
         <input class="fi" id="app-id" type="text" placeholder="e.g. com.cred.club"/>
       </div>
 
-      <!-- FILTERS -->
       <div class="frow">
         <div class="fg">
           <label class="fl">Filter by Stars</label>
@@ -495,31 +334,28 @@
         <div class="fg">
           <label class="fl">Number of Reviews</label>
           <select class="fs" id="count">
-            <option value="20">20 reviews</option>
-            <option value="40" selected>40 reviews</option>
+            <option value="40">40 reviews</option>
             <option value="80">80 reviews</option>
-            <option value="150">150 reviews</option>
-            <option value="200">200 reviews</option>
+            <option value="150" selected>150 reviews</option>
+            <option value="300">300 reviews</option>
+            <option value="500">500 reviews</option>
           </select>
         </div>
       </div>
 
-      <!-- BUTTON -->
       <button class="fetch-btn" id="fetch-btn" onclick="fetchReviews()">
-        ⚡ Fetch Live Reviews
+        ⚡ Fetch &amp; Analyse Reviews
       </button>
 
-      <!-- STATUS -->
       <div class="status-bar" id="status">
         <div class="spin"></div>
         <span id="status-text">Fetching reviews from Google Play…</span>
       </div>
 
-      <!-- RESULTS -->
       <div id="results"></div>
 
-    </div><!-- /card-body -->
-  </div><!-- /card -->
+    </div>
+  </div>
 
   <!-- HOW IT WORKS -->
   <div class="how-section">
@@ -527,65 +363,61 @@
     <div class="how-steps">
       <div class="how-step">
         <div class="how-num">01</div>
-        <div class="how-text">You pick a company or paste a Google Play package ID. The frontend sends a request to the backend API.</div>
+        <div class="how-text">Pick a company or paste any Google Play package ID. The frontend calls the backend API.</div>
       </div>
       <div class="how-step">
         <div class="how-num">02</div>
-        <div class="how-text">A Node.js serverless function on Vercel calls Google Play's unofficial API using the <code>google-play-scraper</code> package.</div>
+        <div class="how-text">A Python serverless function fetches real reviews using <code>google-play-scraper</code> — no API key needed.</div>
       </div>
       <div class="how-step">
         <div class="how-num">03</div>
-        <div class="how-text">Real reviews with usernames, dates, star ratings, and developer replies stream back to your screen.</div>
+        <div class="how-text">Reviews are analysed for sentiment, time-period trends, and the most mentioned words in positive vs negative reviews.</div>
       </div>
       <div class="how-step">
         <div class="how-num">04</div>
-        <div class="how-text">Export any result set to a clean CSV file for analysis, reporting, or feeding into your own tools.</div>
+        <div class="how-text">Export everything to CSV — all reviews, ratings, dates, developer replies included.</div>
       </div>
     </div>
   </div>
-
-</div><!-- /main -->
+</div>
 
 <!-- FOOTER -->
 <footer>
-  <p>ReviewSnap · Real Google Play data · Powered by Pilani for Pilani · Deployed on Vercel</p>
-  <p style="margin-top:0.5rem;">Built for researchers, founders, and product teams 🇮🇳</p>
+  <p>ReviewSnap · Real Google Play data · Built for Indian founders and product teams 🇮🇳</p>
+  <p style="margin-top:0.5rem;opacity:0.6">Free forever · No signup needed</p>
 </footer>
 
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// CONFIG — change this URL once you deploy your Vercel backend
-// ═══════════════════════════════════════════════════════════════════
-// During local development: 'http://localhost:3000/api/reviews'
-// After Vercel deploy:      'https://YOUR-APP.vercel.app/api/reviews'
-// If frontend + backend are same Vercel project, just use: '/api/reviews'
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
 const API_URL = '/api/analyse';
 
-// ═══════════════════════════════════════════════════════════════════
-// COMPANIES — real Google Play package IDs
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// COMPANIES
+// ═══════════════════════════════════════════════════
 const COMPANIES = [
-  { name: 'CRED',       id: 'com.dreamplug.techeazy',         icon: '💳', cat: 'Fintech'         },
-  { name: 'PhonePe',    id: 'com.phonepe.app',                icon: '📲', cat: 'Payments'        },
-  { name: 'Meesho',     id: 'com.meesho.supply',              icon: '🛍️', cat: 'Social Commerce' },
-  { name: 'Zepto',      id: 'com.zepto.app',                  icon: '⚡', cat: 'Quick Commerce'  },
-  { name: 'Blinkit',    id: 'com.grofers.consumerapp',        icon: '🟡', cat: 'Grocery'         },
-  { name: 'Groww',      id: 'com.nextbillion.airzoco',        icon: '📈', cat: 'Investing'        },
-  { name: 'Nykaa',      id: 'com.nykaa.android',              icon: '💄', cat: 'Beauty D2C'      },
-  { name: 'boAt',       id: 'com.boat.lifestyle',             icon: '🎧', cat: 'D2C Electronics' },
-  { name: 'Lenskart',   id: 'com.lenskart.com',               icon: '👓', cat: 'D2C Eyewear'     },
-  { name: 'Swiggy',     id: 'in.swiggy.android',              icon: '🍔', cat: 'FoodTech'        },
-  { name: 'Zomato',     id: 'com.application.zomato',         icon: '🍱', cat: 'FoodTech'        },
-  { name: 'Razorpay',   id: 'com.razorpay.payments.biz',      icon: '⚡', cat: 'Fintech'         },
-  { name: 'Mamaearth',  id: 'com.mamaearth',                  icon: '🌿', cat: 'Wellness D2C'   },
-  { name: 'Delhivery',  id: 'com.delhivery.delivery.mfe',     icon: '📦', cat: 'Logistics'       },
-  { name: 'Ola',        id: 'com.olacabs.customer',           icon: '🚕', cat: 'Mobility'        },
-  { name: 'Juspay',     id: 'in.juspay.namma.cardboard',      icon: '🔐', cat: 'Payments'        },
+  { name:'CRED',       id:'com.dreamplug.techeazy',       icon:'💳', cat:'Fintech'          },
+  { name:'PhonePe',    id:'com.phonepe.app',              icon:'📲', cat:'Payments'         },
+  { name:'Meesho',     id:'com.meesho.supply',            icon:'🛍️', cat:'Social Commerce'  },
+  { name:'Zepto',      id:'com.zepto.app',                icon:'⚡', cat:'Quick Commerce'   },
+  { name:'Blinkit',    id:'com.grofers.consumerapp',      icon:'🟡', cat:'Grocery'          },
+  { name:'Groww',      id:'com.nextbillion.airzoco',      icon:'📈', cat:'Investing'         },
+  { name:'Nykaa',      id:'com.nykaa.android',            icon:'💄', cat:'Beauty D2C'       },
+  { name:'boAt',       id:'com.boat.lifestyle',           icon:'🎧', cat:'D2C Electronics'  },
+  { name:'Lenskart',   id:'com.lenskart.com',             icon:'👓', cat:'D2C Eyewear'      },
+  { name:'Swiggy',     id:'in.swiggy.android',            icon:'🍔', cat:'FoodTech'         },
+  { name:'Zomato',     id:'com.application.zomato',       icon:'🍱', cat:'FoodTech'         },
+  { name:'Razorpay',   id:'com.razorpay.payments.biz',    icon:'⚡', cat:'Fintech'          },
+  { name:'Mamaearth',  id:'com.mamaearth',                icon:'🌿', cat:'Wellness D2C'    },
+  { name:'Delhivery',  id:'com.delhivery.delivery.mfe',   icon:'📦', cat:'Logistics'        },
+  { name:'Ola',        id:'com.olacabs.customer',         icon:'🚕', cat:'Mobility'         },
+  { name:'Juspay',     id:'in.juspay.namma.cardboard',    icon:'🔐', cat:'Payments'         },
 ];
 
-// ═══════════════════════════════════════════════════════════════════
-// BUILD CHIPS
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// BUILD COMPANY CHIPS
+// ═══════════════════════════════════════════════════
 const chipsEl = document.getElementById('chips');
 COMPANIES.forEach(c => {
   const el = document.createElement('button');
@@ -595,8 +427,7 @@ COMPANIES.forEach(c => {
     <span class="chip-info">
       <span class="chip-name">${c.name}</span>
       <span class="chip-cat">${c.cat}</span>
-    </span>
-  `;
+    </span>`;
   el.onclick = () => {
     document.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
@@ -605,16 +436,17 @@ COMPANIES.forEach(c => {
   chipsEl.appendChild(el);
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// FETCH REVIEWS — calls REAL backend
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
 let lastData = null;
 
+// ═══════════════════════════════════════════════════
+// FETCH
+// ═══════════════════════════════════════════════════
 async function fetchReviews() {
-  const appId  = document.getElementById('app-id').value.trim();
-  const rating = document.getElementById('star-filter').value;
-  const sort   = document.getElementById('sort').value;
-  const count  = document.getElementById('count').value;
+  const appId = document.getElementById('app-id').value.trim();
+  const count = document.getElementById('count').value;
 
   if (!appId) {
     showError('Please select a company or enter a Package ID first.');
@@ -623,49 +455,47 @@ async function fetchReviews() {
 
   const btn = document.getElementById('fetch-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div style="width:18px;height:18px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:rot 0.7s linear infinite"></div> Fetching from Google Play…';
+  btn.innerHTML = '<div style="width:18px;height:18px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:rot 0.7s linear infinite;flex-shrink:0"></div> Fetching from Google Play…';
 
-  setStatus('loading', 'Connecting to Google Play API…');
+  setStatus('loading', 'Connecting to Google Play — this takes 10–20 seconds for large fetches…');
   document.getElementById('results').innerHTML = '';
 
-  const params = new URLSearchParams({ appId, rating, sort, count });
+  const params = new URLSearchParams({ appId, count });
 
   try {
-    const res = await fetch(`${API_URL}?${params}`);
+    const res  = await fetch(`${API_URL}?${params}`);
     const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data.error || `Server error ${res.status}`);
-    }
+    if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
 
     lastData = data;
     clearStatus();
     renderResults(data);
 
   } catch (err) {
-    // If API_URL isn't deployed yet, explain clearly
     if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.message.includes('Load failed')) {
-      showError('⚠️ Backend not connected yet. Deploy the /api/reviews.js to Vercel first — see the README for step-by-step instructions.');
+      showError('⚠️ Backend not connected. Make sure api/analyse.py is deployed on Vercel and requirements.txt is in your repo root.');
     } else {
-      showError(err.message);
+      showError('Error: ' + err.message);
     }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '⚡ Fetch Live Reviews';
+    btn.innerHTML = '⚡ Fetch &amp; Analyse Reviews';
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// RENDER RESULTS
+// ═══════════════════════════════════════════════════
 function renderResults(data) {
-  function renderResults(data) {
   const {
     appName, appIcon, appRating, totalReviews, analysed,
     positive, negative, neutral, sentiment,
-    topIssues, topGood, periodBreakdown, reviews: rvList
+    topIssues, topGood, periodBreakdown,
+    reviews: rvList
   } = data;
 
+  // ── Sentiment colour + label ──
   const sentimentColor = sentiment === 'positive' ? '#059669'
                        : sentiment === 'negative' ? '#e11d48'
                        : '#ca8a04';
@@ -673,11 +503,29 @@ function renderResults(data) {
                        : sentiment === 'negative' ? '🔴 Mostly Negative'
                        : '🟡 Mixed';
 
+  // ── App icon ──
   const iconHTML = appIcon
     ? `<img class="app-icon-sm" src="${appIcon}" alt="${appName}" onerror="this.style.display='none'"/>`
     : `<div class="app-icon-placeholder">📱</div>`;
 
-  // ── SENTIMENT BOXES ──
+  // ── Results header ──
+  const headerHTML = `
+    <div class="results-header">
+      <div class="results-meta">
+        ${iconHTML}
+        <div>
+          <div class="results-title">${escHtml(appName)}</div>
+          <div class="results-sub">
+            ${analysed} reviews analysed
+            ${appRating ? ' · ' + parseFloat(appRating).toFixed(1) + '⭐ on Play Store' : ''}
+            ${totalReviews ? ' · ' + Number(totalReviews).toLocaleString('en-IN') + ' total' : ''}
+          </div>
+        </div>
+      </div>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>`;
+
+  // ── Sentiment summary boxes ──
   const sentimentHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.8rem;margin-bottom:1.5rem;">
       <div style="background:#bbf7d0;border:2px solid #059669;border-radius:16px;padding:1rem;text-align:center;">
@@ -693,50 +541,47 @@ function renderResults(data) {
         <div style="font-size:0.72rem;font-weight:800;color:#ca8a04">NEUTRAL (3★)</div>
       </div>
       <div style="background:#e9d5ff;border:2px solid #7c3aed;border-radius:16px;padding:1rem;text-align:center;">
-        <div style="font-size:0.95rem;font-weight:900;color:${sentimentColor};margin-bottom:0.3rem">${sentimentLabel}</div>
+        <div style="font-size:0.92rem;font-weight:900;color:${sentimentColor};margin-bottom:0.3rem">${sentimentLabel}</div>
         <div style="font-size:0.72rem;font-weight:800;color:#7c3aed">OVERALL SENTIMENT</div>
       </div>
     </div>`;
 
-  // ── PERIOD BREAKDOWN TABLE ──
+  // ── Period breakdown table ──
   let periodHTML = '';
   if (periodBreakdown && Object.keys(periodBreakdown).length) {
     const rows = Object.entries(periodBreakdown).map(([label, d]) => {
-      const pct5 = d.total ? ((d['5star'] / d.total) * 100).toFixed(0) : 0;
-      const barColor = d.avg >= 4 ? '#059669' : d.avg >= 3 ? '#ca8a04' : '#e11d48';
+      const avgColor = d.avg >= 4 ? '#059669' : d.avg >= 3 ? '#ca8a04' : '#e11d48';
       return `
         <tr style="border-bottom:1px solid #e7e5e4;">
-          <td style="padding:0.75rem 0.8rem;font-weight:800;font-size:0.85rem;white-space:nowrap">${label}</td>
-          <td style="padding:0.75rem 0.8rem;text-align:center;font-weight:700">${d.total.toLocaleString('en-IN')}</td>
-          <td style="padding:0.75rem 0.8rem;text-align:center;">
-            <span style="font-weight:900;color:${barColor}">${d.avg}</span>
-          </td>
-          <td style="padding:0.75rem 0.8rem;text-align:center;color:#059669;font-weight:700">${d['5star']}</td>
-          <td style="padding:0.75rem 0.8rem;text-align:center;color:#84cc16;font-weight:700">${d['4star']}</td>
-          <td style="padding:0.75rem 0.8rem;text-align:center;color:#ca8a04;font-weight:700">${d['3star']}</td>
-          <td style="padding:0.75rem 0.8rem;text-align:center;color:#f97316;font-weight:700">${d['2star']}</td>
-          <td style="padding:0.75rem 0.8rem;text-align:center;color:#e11d48;font-weight:700">${d['1star']}</td>
+          <td style="padding:0.7rem 0.8rem;font-weight:800;font-size:0.85rem;white-space:nowrap">${label}</td>
+          <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700">${Number(d.total).toLocaleString('en-IN')}</td>
+          <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:900;color:${avgColor}">${d.avg}</td>
+          <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700;color:#059669">${d['5star']}</td>
+          <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700;color:#84cc16">${d['4star']}</td>
+          <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700;color:#ca8a04">${d['3star']}</td>
+          <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700;color:#f97316">${d['2star']}</td>
+          <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700;color:#e11d48">${d['1star']}</td>
         </tr>`;
     }).join('');
 
     periodHTML = `
       <div style="background:white;border:2.5px solid #e7e5e4;border-radius:18px;margin-bottom:1.5rem;overflow:hidden;">
         <div style="background:linear-gradient(120deg,#bae6fd,#e9d5ff);padding:1rem 1.4rem;">
-          <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;">📅 Review Breakdown by Time Period</div>
-          <div style="font-size:0.78rem;color:#475569;font-weight:600;margin-top:0.2rem">How ratings have changed over time</div>
+          <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;">📅 Rating Breakdown by Time Period</div>
+          <div style="font-size:0.78rem;color:#475569;font-weight:600;margin-top:0.2rem;">How ratings have shifted over time — based on reviews fetched</div>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;">
             <thead>
               <tr style="background:#fafaf9;border-bottom:2px solid #e7e5e4;">
-                <th style="padding:0.6rem 0.8rem;text-align:left;font-size:0.72rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Period</th>
-                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Total</th>
-                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Avg ⭐</th>
-                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#059669">5★</th>
-                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#84cc16">4★</th>
-                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#ca8a04">3★</th>
-                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#f97316">2★</th>
-                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.72rem;font-weight:800;color:#e11d48">1★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:left;font-size:0.7rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Period</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.7rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Reviews</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.7rem;font-weight:800;color:#78716c;letter-spacing:1px;text-transform:uppercase">Avg ⭐</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.7rem;font-weight:800;color:#059669">5★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.7rem;font-weight:800;color:#84cc16">4★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.7rem;font-weight:800;color:#ca8a04">3★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.7rem;font-weight:800;color:#f97316">2★</th>
+                <th style="padding:0.6rem 0.8rem;text-align:center;font-size:0.7rem;font-weight:800;color:#e11d48">1★</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
@@ -745,49 +590,48 @@ function renderResults(data) {
       </div>`;
   }
 
-  // ── DYNAMIC ISSUES & GOOD POINTS ──
-  const maxIssue = topIssues?.length ? topIssues[0].count : 1;
+  // ── Issues & Good Points ──
+  const maxIssue = (topIssues && topIssues.length) ? topIssues[0].count : 1;
   const issueHTML = (topIssues || []).map(({ phrase, count }) => `
     <div style="margin-bottom:0.65rem;">
       <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.22rem;">
         <span style="text-transform:capitalize">${escHtml(phrase)}</span>
-        <span style="color:#e11d48;flex-shrink:0;margin-left:0.5rem">${count}x</span>
+        <span style="color:#e11d48;flex-shrink:0;margin-left:0.5rem">${count}×</span>
       </div>
       <div style="background:#e7e5e4;border-radius:99px;height:7px;">
-        <div style="background:linear-gradient(90deg,#fecdd3,#e11d48);width:${Math.max(4,(count/maxIssue*100)).toFixed(0)}%;height:7px;border-radius:99px;transition:width 0.5s ease;"></div>
+        <div style="background:linear-gradient(90deg,#fecdd3,#e11d48);width:${Math.max(4,(count/maxIssue*100)).toFixed(0)}%;height:7px;border-radius:99px;transition:width 0.5s;"></div>
       </div>
     </div>`).join('');
 
-  const maxGood = topGood?.length ? topGood[0].count : 1;
+  const maxGood = (topGood && topGood.length) ? topGood[0].count : 1;
   const goodHTML = (topGood || []).map(({ phrase, count }) => `
     <div style="margin-bottom:0.65rem;">
       <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.22rem;">
         <span style="text-transform:capitalize">${escHtml(phrase)}</span>
-        <span style="color:#059669;flex-shrink:0;margin-left:0.5rem">${count}x</span>
+        <span style="color:#059669;flex-shrink:0;margin-left:0.5rem">${count}×</span>
       </div>
       <div style="background:#e7e5e4;border-radius:99px;height:7px;">
-        <div style="background:linear-gradient(90deg,#bbf7d0,#059669);width:${Math.max(4,(count/maxGood*100)).toFixed(0)}%;height:7px;border-radius:99px;transition:width 0.5s ease;"></div>
+        <div style="background:linear-gradient(90deg,#bbf7d0,#059669);width:${Math.max(4,(count/maxGood*100)).toFixed(0)}%;height:7px;border-radius:99px;transition:width 0.5s;"></div>
       </div>
     </div>`).join('');
 
   const themesHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
       <div style="background:white;border:2.5px solid #fecdd3;border-radius:18px;padding:1.4rem;">
-        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.4rem;">⚠️ Top Issues</div>
+        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.3rem;">⚠️ Top Issues</div>
         <div style="font-size:0.72rem;color:#78716c;font-weight:600;margin-bottom:1rem;">Most mentioned words in 1★–2★ reviews</div>
-        ${issueHTML || '<div style="color:#78716c;font-size:0.85rem">Not enough negative reviews to analyse</div>'}
+        ${issueHTML || '<div style="color:#78716c;font-size:0.85rem;font-weight:600">Not enough negative reviews</div>'}
       </div>
       <div style="background:white;border:2.5px solid #bbf7d0;border-radius:18px;padding:1.4rem;">
-        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.4rem;">✅ What Users Love</div>
+        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.3rem;">✅ What Users Love</div>
         <div style="font-size:0.72rem;color:#78716c;font-weight:600;margin-bottom:1rem;">Most mentioned words in 4★–5★ reviews</div>
-        ${goodHTML || '<div style="color:#78716c;font-size:0.85rem">Not enough positive reviews to analyse</div>'}
+        ${goodHTML || '<div style="color:#78716c;font-size:0.85rem;font-weight:600">Not enough positive reviews</div>'}
       </div>
     </div>`;
 
-  // ── REVIEW CARDS ──
+  // ── Individual review cards ──
   const cardHTML = (rvList || []).map((r, i) => {
     const stars    = '★'.repeat(r.score) + '☆'.repeat(5 - r.score);
-    const starClass= `s${r.score}`;
     const initials = (r.userName || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     const dateStr  = r.date ? new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
     const reply    = r.replyText
@@ -804,7 +648,7 @@ function renderResults(data) {
             </div>
           </div>
           <div class="rv-right">
-            <div class="rv-stars ${starClass}">${stars}</div>
+            <div class="rv-stars s${r.score}">${stars}</div>
             <div class="rv-date">${dateStr}</div>
           </div>
         </div>
@@ -814,34 +658,92 @@ function renderResults(data) {
       </div>`;
   }).join('');
 
-  // ── ASSEMBLE ──
+  // ── Assemble everything ──
   document.getElementById('results').innerHTML = `
-    <div class="results-header">
-      <div class="results-meta">
-        ${iconHTML}
-        <div>
-          <div class="results-title">${escHtml(appName)}</div>
-          <div class="results-sub">
-            ${analysed} reviews analysed
-            ${appRating ? ' · ' + parseFloat(appRating).toFixed(1) + '⭐ avg on Play Store' : ''}
-            ${totalReviews ? ' · ' + Number(totalReviews).toLocaleString('en-IN') + ' total reviews' : ''}
-          </div>
-        </div>
-      </div>
-      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
-    </div>
-
+    ${headerHTML}
     ${sentimentHTML}
     ${periodHTML}
     ${themesHTML}
-
     <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">
-      📝 All Reviews <span style="font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:600;color:#78716c">(${(rvList||[]).length} shown)</span>
+      📝 All Reviews
+      <span style="font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:600;color:#78716c">(${(rvList||[]).length} shown)</span>
     </div>
-    ${cardHTML}
+    ${cardHTML || '<div style="color:#78716c;padding:1rem;font-weight:600">No reviews to display.</div>'}
   `;
 }
 
+// ═══════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════
+function exportCSV() {
+  if (!lastData || !lastData.reviews || !lastData.reviews.length) {
+    alert('No data to export yet. Fetch reviews first.');
+    return;
+  }
+
+  const { appName, reviews } = lastData;
+
+  const headers = [
+    'User Name', 'Star Rating', 'Date', 'Review Text',
+    'Developer Reply', 'Helpful Votes', 'App Version'
+  ];
+
+  const rows = reviews.map(r => [
+    csvCell(r.userName),
+    r.score,
+    r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
+    csvCell(r.text),
+    csvCell(r.replyText || ''),
+    r.thumbsUp || 0,
+    csvCell(r.version || ''),
+  ]);
+
+  const csv  = [headers, ...rows].map(row => row.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${(appName || 'reviews').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+function csvCell(val) {
+  if (val === null || val === undefined) return '';
+  return '"' + String(val).replace(/"/g, '""') + '"';
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function setStatus(type, msg) {
+  const bar = document.getElementById('status');
+  bar.className = 'status-bar ' + type;
+  document.getElementById('status-text').textContent = msg;
+}
+
+function clearStatus() {
+  document.getElementById('status').className = 'status-bar';
+}
+
+function showError(msg) {
+  setStatus('error', msg);
+}
+
+// Enter key support
+document.getElementById('app-id').addEventListener('keydown', e => {
+  if (e.key === 'Enter') fetchReviews();
+});
 </script>
 </body>
 </html>
