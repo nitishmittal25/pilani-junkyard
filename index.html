@@ -333,13 +333,20 @@
         </div>
         <div class="fg">
           <label class="fl">Number of Reviews</label>
-          <select class="fs" id="count">
+          <select class="fs" id="count" onchange="toggleCustomCount(this)">
             <option value="40">40 reviews</option>
             <option value="80">80 reviews</option>
             <option value="150" selected>150 reviews</option>
             <option value="300">300 reviews</option>
             <option value="500">500 reviews</option>
+            <option value="1000">1,000 reviews</option>
+            <option value="2000">2,000 reviews</option>
+            <option value="5000">5,000 reviews (slow)</option>
+            <option value="custom">Custom number...</option>
           </select>
+          <input class="fi" id="custom-count" type="number" min="1" max="5000"
+            placeholder="Enter number e.g. 750"
+            style="display:none;margin-top:0.5rem"/>
         </div>
       </div>
 
@@ -415,6 +422,11 @@ const COMPANIES = [
   { name:'Juspay',     id:'io.juspay.juspayportal',       icon:'🔐', cat:'Payments'         },
 ];
 
+// Build custom key
+function toggleCustomCount(sel) {
+  const input = document.getElementById('custom-count');
+  input.style.display = sel.value === 'custom' ? 'block' : 'none';
+}
 // ═══════════════════════════════════════════════════
 // BUILD COMPANY CHIPS
 // ═══════════════════════════════════════════════════
@@ -446,7 +458,10 @@ let lastData = null;
 // ═══════════════════════════════════════════════════
 async function fetchReviews() {
   const appId = document.getElementById('app-id').value.trim();
-  const count = document.getElementById('count').value;
+  const countSel = document.getElementById('count').value;
+  const count = countSel === 'custom'
+    ? (parseInt(document.getElementById('custom-count').value) || 150)
+    : countSel;
 
   if (!appId) {
     showError('Please select a company or enter a Package ID first.');
@@ -553,7 +568,10 @@ function renderResults(data) {
       const avgColor = d.avg >= 4 ? '#059669' : d.avg >= 3 ? '#ca8a04' : '#e11d48';
       return `
         <tr style="border-bottom:1px solid #e7e5e4;">
-          <td style="padding:0.7rem 0.8rem;font-weight:800;font-size:0.85rem;white-space:nowrap">${label}</td>
+          <td style="padding:0.7rem 0.8rem;font-weight:800;font-size:0.85rem;white-space:nowrap">
+          ${label}
+          <div style="font-size:0.65rem;color:#78716c;font-weight:600;margin-top:0.15rem">${d.dateRange || ''}</div>
+          </td>
           <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700">${Number(d.total).toLocaleString('en-IN')}</td>
           <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:900;color:${avgColor}">${d.avg}</td>
           <td style="padding:0.7rem 0.8rem;text-align:center;font-weight:700;color:#059669">${d['5star']}</td>
@@ -694,6 +712,7 @@ function exportCSV() {
     r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
     csvCell(r.text),
     csvCell(r.replyText || ''),
+    r.replyDate ? new Date(r.replyDate).toLocaleDateString('en-IN') : '',
     r.thumbsUp || 0,
     csvCell(r.version || ''),
   ]);
