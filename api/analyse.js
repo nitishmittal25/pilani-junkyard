@@ -30,30 +30,45 @@ function extractPhrases(reviews, starRange, topN = 10) {
 function buildPeriodBreakdown(reviews) {
   const now = Date.now();
   const PERIODS = [7, 30, 60, 90, 120, 180, 270, 365];
+  // Only include periods up to how far back the reviews actually go
+  const oldestDate = Math.min(...reviews.map(r => new Date(r.at).getTime()));
+  const actualDays = Math.ceil((now - oldestDate) / (86400 * 1000));
+
   const result = {};
 
-  PERIODS.forEach(days => {
+  PERIODS.filter(d => d <= actualDays + 7).forEach(days => {
     const cutoff = now - days * 86400 * 1000;
-    const subset = reviews.filter(r => new Date(r.at).getTime() >= cutoff);
+    const fromDate = new Date(cutoff).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+    const toDate   = new Date(now).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+    const subset   = reviews.filter(r => new Date(r.at).getTime() >= cutoff);
     if (!subset.length) return;
+
     const stars = {1:0,2:0,3:0,4:0,5:0};
     subset.forEach(r => stars[r.score]++);
     const avg = subset.reduce((s, r) => s + r.score, 0) / subset.length;
+
     result[`Last ${days} Days`] = {
-      days, total: subset.length,
+      days,
+      dateRange: `${fromDate} → ${toDate}`,
+      total: subset.length,
       avg: Math.round(avg * 100) / 100,
       '5star': stars[5], '4star': stars[4],
       '3star': stars[3], '2star': stars[2], '1star': stars[1],
     };
   });
 
-  // All time
+  // All fetched reviews period
   if (reviews.length) {
     const stars = {1:0,2:0,3:0,4:0,5:0};
     reviews.forEach(r => stars[r.score]++);
     const avg = reviews.reduce((s, r) => s + r.score, 0) / reviews.length;
-    result['All Time'] = {
-      days: null, total: reviews.length,
+    const fromDate = new Date(oldestDate).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+    const toDate   = new Date(now).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+
+    result[`All Fetched (${reviews.length} reviews)`] = {
+      days: null,
+      dateRange: `${fromDate} → ${toDate}`,
+      total: reviews.length,
       avg: Math.round(avg * 100) / 100,
       '5star': stars[5], '4star': stars[4],
       '3star': stars[3], '2star': stars[2], '1star': stars[1],
@@ -62,7 +77,7 @@ function buildPeriodBreakdown(reviews) {
 
   return result;
 }
-
+  
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -73,7 +88,7 @@ module.exports = async (req, res) => {
   const { appId, count = '150' } = req.query;
   if (!appId) return res.status(400).json({ error: 'appId is required' });
 
-  const numCount = Math.min(parseInt(count) || 150, 500);
+  const numCount = Math.min(parseInt(count) || 150, 200000);
 
   try {
     // App info
@@ -124,13 +139,14 @@ module.exports = async (req, res) => {
       topGood:      extractPhrases(allReviews, [4, 5], 10),
       periodBreakdown: buildPeriodBreakdown(allReviews),
       reviews: allReviews.map(r => ({
-        userName:  r.userName,
+        userName:  r.userName,  || 'Anonymous',
         score:     r.score,
-        text:      r.content,
-        date:      r.at,
-        thumbsUp:  r.thumbsUpCount || 0,
-        version:   r.reviewCreatedVersion || null,
-        replyText: r.replyContent || null,
+        text:      r.content,  || '',
+        date:      r.at ? new Date(r.at).toISOString() : null,
+        thumbsUp:  r.thumbsUpCount || '',
+        version:   r.reviewCreatedVersion || '',
+        replyText: r.replyContent || '',
+        replyDate: r.repliedAt ? new Date(r.repliedAt).toISOString() : '',
       })),
     });
 
