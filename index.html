@@ -559,7 +559,7 @@
 // During local development: 'http://localhost:3000/api/reviews'
 // After Vercel deploy:      'https://YOUR-APP.vercel.app/api/reviews'
 // If frontend + backend are same Vercel project, just use: '/api/reviews'
-const API_URL = '/api/reviews';
+const API_URL = '/api/analyse';
 
 // ═══════════════════════════════════════════════════════════════════
 // COMPANIES — real Google Play package IDs
@@ -659,79 +659,111 @@ async function fetchReviews() {
 // RENDER
 // ═══════════════════════════════════════════════════════════════════
 function renderResults(data) {
-  const { appName, appIcon, appRating, totalReviews, fetchedCount, reviews } = data;
+  const { appName, appIcon, appRating, analysed, positive, negative, neutral,
+          sentiment, topIssues, topGood, reviews } = data;
 
-  const ratingText = appRating ? `${parseFloat(appRating).toFixed(1)} ⭐ avg` : '';
-  const countText  = `${fetchedCount} review${fetchedCount !== 1 ? 's' : ''} fetched`;
-  const totalText  = totalReviews ? ` · ${Number(totalReviews).toLocaleString('en-IN')} total on Play Store` : '';
+  const sentimentColor = sentiment === 'positive' ? '#059669' : sentiment === 'negative' ? '#e11d48' : '#ca8a04';
+  const sentimentLabel = sentiment === 'positive' ? '🟢 Predominantly Positive' : sentiment === 'negative' ? '🔴 Predominantly Negative' : '🟡 Mixed';
+  const iconHTML = appIcon ? `<img class="app-icon-sm" src="${appIcon}" alt="${appName}"/>` : `<div class="app-icon-placeholder">📱</div>`;
 
-  const iconHTML = appIcon
-    ? `<img class="app-icon-sm" src="${appIcon}" alt="${appName}" onerror="this.style.display='none'"/>`
-    : `<div class="app-icon-placeholder">📱</div>`;
+  // Build issues bars
+  const maxIssue = Math.max(...Object.values(topIssues), 1);
+  const issueHTML = Object.entries(topIssues).map(([theme, count]) => `
+    <div style="margin-bottom:0.7rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.25rem;">
+        <span>${theme}</span><span style="color:var(--rose-deep)">${count}</span>
+      </div>
+      <div style="background:var(--border);border-radius:99px;height:8px;">
+        <div style="background:linear-gradient(90deg,#fecdd3,#e11d48);width:${(count/maxIssue*100).toFixed(0)}%;height:8px;border-radius:99px;"></div>
+      </div>
+    </div>`).join('');
 
-  let html = `
+  // Build good points bars
+  const maxGood = Math.max(...Object.values(topGood), 1);
+  const goodHTML = Object.entries(topGood).map(([theme, count]) => `
+    <div style="margin-bottom:0.7rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:0.25rem;">
+        <span>${theme}</span><span style="color:var(--mint-deep)">${count}</span>
+      </div>
+      <div style="background:var(--border);border-radius:99px;height:8px;">
+        <div style="background:linear-gradient(90deg,#bbf7d0,#059669);width:${(count/maxGood*100).toFixed(0)}%;height:8px;border-radius:99px;"></div>
+      </div>
+    </div>`).join('');
+
+  // Review cards
+  const cardHTML = reviews.map((r, i) => {
+    const stars = '★'.repeat(r.score) + '☆'.repeat(5 - r.score);
+    const starClass = `s${r.score}`;
+    const initials = (r.userName || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const dateStr = r.date ? new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+    const replyHTML = r.replyText ? `<div class="rv-reply"><div class="rv-reply-label">🏢 Developer Reply</div><div class="rv-reply-text">${escHtml(r.replyText)}</div></div>` : '';
+    return `
+      <div class="rv" style="animation-delay:${Math.min(i,15)*0.04}s">
+        <div class="rv-top">
+          <div class="rv-user">
+            <div class="rv-avatar">${initials}</div>
+            <div><div class="rv-name">${escHtml(r.userName||'Anonymous')}</div>${r.version?`<div class="rv-version">v${r.version}</div>`:''}</div>
+          </div>
+          <div class="rv-right">
+            <div class="rv-stars ${starClass}">${stars}</div>
+            <div class="rv-date">${dateStr}</div>
+          </div>
+        </div>
+        <div class="rv-text">${escHtml(r.text||'')}</div>
+        ${replyHTML}
+        ${r.thumbsUp ? `<div class="rv-foot"><span class="rv-thumbs">👍 ${r.thumbsUp} found this helpful</span></div>` : ''}
+      </div>`;
+  }).join('');
+
+  document.getElementById('results').innerHTML = `
+    <!-- App Header -->
     <div class="results-header">
       <div class="results-meta">
         ${iconHTML}
         <div>
           <div class="results-title">${appName}</div>
-          <div class="results-sub">${countText}${totalText}${ratingText ? ' · ' + ratingText : ''}</div>
+          <div class="results-sub">${analysed} reviews analysed · ${appRating ? appRating.toFixed(1) + '⭐ avg' : ''}</div>
         </div>
       </div>
-      <button class="export-btn" onclick="exportCSV()">
-        ⬇ Export CSV
-      </button>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
     </div>
+
+    <!-- Sentiment Summary -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.8rem;margin-bottom:1.5rem;">
+      <div style="background:var(--mint);border:2px solid var(--mint-deep);border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;color:var(--mint-deep)">${positive}</div>
+        <div style="font-size:0.75rem;font-weight:800;color:var(--mint-deep)">POSITIVE (4★–5★)</div>
+      </div>
+      <div style="background:var(--rose);border:2px solid var(--rose-deep);border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;color:var(--rose-deep)">${negative}</div>
+        <div style="font-size:0.75rem;font-weight:800;color:var(--rose-deep)">NEGATIVE (1★–2★)</div>
+      </div>
+      <div style="background:var(--lemon);border:2px solid var(--lemon-deep);border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;color:var(--lemon-deep)">${neutral}</div>
+        <div style="font-size:0.75rem;font-weight:800;color:var(--lemon-deep)">NEUTRAL (3★)</div>
+      </div>
+      <div style="background:var(--lilac);border:2px solid var(--lilac-deep);border-radius:16px;padding:1rem;text-align:center;">
+        <div style="font-size:1rem;font-weight:900;color:${sentimentColor}">${sentimentLabel}</div>
+        <div style="font-size:0.75rem;font-weight:800;color:var(--lilac-deep);margin-top:0.3rem">OVERALL SENTIMENT</div>
+      </div>
+    </div>
+
+    <!-- Issues + Good Points -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="background:white;border:2.5px solid var(--rose);border-radius:18px;padding:1.4rem;">
+        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">⚠️ Top Issues</div>
+        ${issueHTML}
+      </div>
+      <div style="background:white;border:2.5px solid var(--mint);border-radius:18px;padding:1.4rem;">
+        <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">✅ What Users Love</div>
+        ${goodHTML}
+      </div>
+    </div>
+
+    <!-- Raw Reviews -->
+    <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1rem;margin-bottom:1rem;">📝 All Reviews</div>
+    ${cardHTML}
   `;
-
-  if (!reviews.length) {
-    html += `<div style="text-align:center;padding:2rem;color:var(--muted);font-weight:700;">No reviews found with these filters. Try changing the star filter or count.</div>`;
-  } else {
-    reviews.forEach((r, i) => {
-      const starClass = `s${r.score}`;
-      const stars     = '★'.repeat(r.score) + '☆'.repeat(5 - r.score);
-      const initials  = (r.userName || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      const dateStr   = r.date ? new Date(r.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '';
-
-      const avatarHTML = r.userImage
-        ? `<div class="rv-avatar"><img src="${r.userImage}" alt="${r.userName}" onerror="this.parentElement.textContent='${initials}'"/></div>`
-        : `<div class="rv-avatar">${initials}</div>`;
-
-      const replyHTML = (r.replyText) ? `
-        <div class="rv-reply">
-          <div class="rv-reply-label">🏢 Developer Reply</div>
-          <div class="rv-reply-text">${escHtml(r.replyText)}</div>
-        </div>
-      ` : '';
-
-      const versionHTML = r.version ? `<div class="rv-version">v${r.version}</div>` : '';
-
-      html += `
-        <div class="rv" style="animation-delay:${Math.min(i, 15) * 0.04}s">
-          <div class="rv-top">
-            <div class="rv-user">
-              ${avatarHTML}
-              <div>
-                <div class="rv-name">${escHtml(r.userName || 'Anonymous')}</div>
-                ${versionHTML}
-              </div>
-            </div>
-            <div class="rv-right">
-              <div class="rv-stars ${starClass}">${stars}</div>
-              <div class="rv-date">${dateStr}</div>
-            </div>
-          </div>
-          <div class="rv-text">${escHtml(r.text || '')}</div>
-          ${replyHTML}
-          <div class="rv-foot">
-            <span class="rv-thumbs">${r.thumbsUp ? `👍 ${r.thumbsUp} found this helpful` : ''}</span>
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  document.getElementById('results').innerHTML = html;
 }
 
 // ═══════════════════════════════════════════════════════════════════
