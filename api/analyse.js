@@ -84,15 +84,16 @@ module.exports = async (req, res) => {
     let allReviews = [], token = null;
     while (allReviews.length < numCount) {
       const batch = Math.min(200, numCount - allReviews.length);
-      const [result, nextToken] = await gplay.reviews({
+      const reviewResult = await gplay.reviews({
         appId, lang: 'en', country: 'in',
         sort: gplay.sort.NEWEST,
         count: batch,
-        continuation_token: token,
+        continuationToken: token,
       });
+    const result = reviewResult.data;
+    token = reviewResult.nextPaginationToken;
       if (!result || !result.length) break;
       allReviews = allReviews.concat(result);
-      token = nextToken;
       if (!token) break;
     }
 
