@@ -1,0 +1,11 @@
+{
+  "name": "playstore-review-scraper",
+  "version": "1.0.0",
+  "description": "Google Play Store reviews scraper — live data, Vercel serverless",
+  "dependencies": {
+    "google-play-scraper": "^9.1.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
