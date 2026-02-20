@@ -265,6 +265,15 @@
       .main{padding:2rem 1rem 4rem;}
       .results-header{flex-direction:column;align-items:flex-start;}
     }
+    .nav-tab {
+      background: none; border: 2px solid var(--border);
+      border-radius: 99px; padding: 0.3rem 0.9rem;
+      font-family: 'Nunito', sans-serif; font-size: 0.8rem;
+      font-weight: 800; color: var(--muted); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-tab.active { background: var(--ink); color: white; border-color: var(--ink); }
+    .nav-tab:hover  { border-color: var(--ink); }
   </style>
 </head>
 <body>
@@ -277,6 +286,8 @@
   </div>
   <div class="nav-right">
     <span class="nav-pill">LIVE DATA</span>
+    <button onclick="showTab('scraper')" id="tab-scraper" class="nav-tab active">🔍 Scraper</button>
+    <button onclick="showTab('feedback')" id="tab-feedback" class="nav-tab">💬 Feedback</button>
   </div>
 </nav>
 
@@ -301,7 +312,8 @@
 </section>
 
 <!-- MAIN -->
-<div class="main">
+<div id="page-scraper">
+<div class="main">  
   <div class="card">
     <div class="card-banner">
       <h2>🔍 Google Play Review Scraper</h2>
@@ -395,6 +407,43 @@
     </div>
   </div>
 </div>
+</div>
+
+<!-- FEEDBACK PAGE -->
+<div id="page-feedback" style="display:none">
+<div class="main">
+  <div class="card">
+    <div class="card-banner">
+      <h2>💬 Feedback & Contact Us</h2>
+      <p>Have a suggestion, found a bug, or want to say hello? We'd love to hear from you.</p>
+    </div>
+    <div class="card-body" style="max-width:560px;margin:0 auto;">
+      <div class="fg">
+        <label class="fl">Your Name</label>
+        <input class="fi" id="fb-name" type="text" placeholder="e.g. Rahul Sharma"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Contact Number</label>
+        <input class="fi" id="fb-contact" type="tel" placeholder="e.g. 9876543210"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Message</label>
+        <textarea class="fi" id="fb-message" rows="5"
+          placeholder="Tell us what you think, report a bug, or suggest a feature…"
+          style="resize:vertical;line-height:1.6"></textarea>
+      </div>
+      <button class="fetch-btn" id="fb-btn" onclick="submitFeedback()">
+        📨 Send Message
+      </button>
+      <div class="status-bar" id="fb-status" style="margin-top:1rem;">
+        <span id="fb-status-text"></span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->  
 
 <!-- FOOTER -->
 <footer>
@@ -407,6 +456,55 @@
 // CONFIG
 // ═══════════════════════════════════════════════════
 const API_URL = '/api/analyse';
+// ── Replace this URL with your Google Apps Script deployment URL ──
+const FEEDBACK_URL = 'https://script.google.com/macros/s/AKfycbwY14CyHvjFAujZoz3sLYg4Dv9PlNTwF3TdXgjD322wutbHQ0zxQ7DUBDoo79DqMtA/exec';
+
+function showTab(tab) {
+  document.getElementById('page-scraper').style.display  = tab === 'scraper'  ? 'block' : 'none';
+  document.getElementById('page-feedback').style.display = tab === 'feedback' ? 'block' : 'none';
+  document.getElementById('tab-scraper').classList.toggle('active',  tab === 'scraper');
+  document.getElementById('tab-feedback').classList.toggle('active', tab === 'feedback');
+}
+
+async function submitFeedback() {
+  const name    = document.getElementById('fb-name').value.trim();
+  const contact = document.getElementById('fb-contact').value.trim();
+  const message = document.getElementById('fb-message').value.trim();
+
+  if (!name || !message) {
+    const bar = document.getElementById('fb-status');
+    bar.className = 'status-bar error';
+    document.getElementById('fb-status-text').textContent = 'Please enter your name and message.';
+    return;
+  }
+
+  const btn = document.getElementById('fb-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:18px;height:18px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:rot 0.7s linear infinite;flex-shrink:0"></div> Sending…';
+
+  try {
+    await fetch(FEEDBACK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, contact, message }),
+    });
+    document.getElementById('fb-name').value    = '';
+    document.getElementById('fb-contact').value = '';
+    document.getElementById('fb-message').value = '';
+    const bar = document.getElementById('fb-status');
+    bar.className = 'status-bar loading';
+    document.getElementById('fb-status-text').textContent = '✅ Message sent! We will get back to you soon.';
+  } catch (err) {
+    const bar = document.getElementById('fb-status');
+    bar.className = 'status-bar error';
+    document.getElementById('fb-status-text').textContent = 'Failed to send. Please try again.';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📨 Send Message';
+  }
+}
+  
 
 // ═══════════════════════════════════════════════════
 // COMPANIES
