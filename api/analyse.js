@@ -40,7 +40,7 @@ function buildPeriodBreakdown(reviews) {
     const cutoff = now - days * 86400 * 1000;
     const fromDate = new Date(cutoff).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
     const toDate   = new Date(now).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
-    const subset   = reviews.filter(r => new Date(r.at).getTime() >= cutoff);
+    const subset   = reviews.filter(r => { const d = new Date(r.at); return !isNaN(d.getTime()) && d.getTime() >= cutoff; });
     if (!subset.length) return;
 
     const stars = {1:0,2:0,3:0,4:0,5:0};
