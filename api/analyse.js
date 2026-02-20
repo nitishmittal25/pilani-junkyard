@@ -183,16 +183,20 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: `No reviews found for ${appId}` });
     }
 
-
+  // Temporary debug — remove after fixing
+    if (allReviews.length > 0) {
+      console.log('First review raw fields:', JSON.stringify(Object.keys(allReviews[0])));
+      console.log('First review raw data:', JSON.stringify(allReviews[0]));
+    }
 
   // ── Map reviews first so all fields are correct ──
     const mappedReviews = allReviews.map(r => ({
       userName:  r.userName || 'Anonymous',
       score:     r.score,
       text:      r.content || r.text || '',
-      date:      r.at ? (r.at instanceof Date ? r.at : new Date(r.at)).toISOString() : null,
+      date:      r.at ? new Date(r.at).toISOString() : (r.date ? new Date(r.date).toISOString() : null),
       thumbsUp:  r.thumbsUpCount || 0,
-      version:   r.reviewCreatedVersion || '',
+      version:   r.reviewCreatedVersion || r.appVersion || '',
       replyText: r.replyContent || '',
       replyDate: r.repliedAt ? (r.repliedAt instanceof Date ? r.repliedAt : new Date(r.repliedAt)).toISOString() : '',
     }));
