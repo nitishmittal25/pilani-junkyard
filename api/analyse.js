@@ -27,29 +27,38 @@ function extractPhrases(reviews, starRange, topN = 10) {
     .map(([phrase, count]) => ({ phrase, count }));
 }
 
+
+// ... extractPhrases function above ...
+
 function buildPeriodBreakdown(reviews) {
   const now = Date.now();
   const PERIODS = [7, 30, 60, 90, 120, 180, 270, 365];
-  // Only include periods up to how far back the reviews actually go
-  const oldestDate = Math.min(...reviews.map(r => (r.at instanceof Date ? r.at :(r.at instanceof Date ? r.at : new Date(r.at)).getTime()));
+
+  const getTime = (val) => {
+    if (!val) return null;
+    const t = val instanceof Date ? val.getTime() : new Date(val).getTime();
+    return isNaN(t) ? null : t;
+  };
+
+  const timestamps = reviews.map(r => getTime(r.date)).filter(Boolean);
+  if (!timestamps.length) return {};
+
+  const oldestDate = Math.min(...timestamps);
   const actualDays = Math.ceil((now - oldestDate) / (86400 * 1000));
+  const fmt = ts => new Date(ts).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
 
   const result = {};
 
   PERIODS.filter(d => d <= actualDays + 7).forEach(days => {
     const cutoff = now - days * 86400 * 1000;
-    const fromDate = new Date(cutoff).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
-    const toDate   = new Date(now).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
-    const subset   = reviews.filter(r => { const d = new Date(r.at); return !isNaN(d.getTime()) && d.getTime() >= cutoff; });
+    const subset = reviews.filter(r => { const t = getTime(r.date); return t && t >= cutoff; });
     if (!subset.length) return;
-
     const stars = {1:0,2:0,3:0,4:0,5:0};
-    subset.forEach(r => stars[r.score]++);
+    subset.forEach(r => { if (stars[r.score] !== undefined) stars[r.score]++; });
     const avg = subset.reduce((s, r) => s + r.score, 0) / subset.length;
-
     result[`Last ${days} Days`] = {
       days,
-      dateRange: `${fromDate} → ${toDate}`,
+      dateRange: `${fmt(cutoff)} → ${fmt(now)}`,
       total: subset.length,
       avg: Math.round(avg * 100) / 100,
       '5star': stars[5], '4star': stars[4],
@@ -57,17 +66,13 @@ function buildPeriodBreakdown(reviews) {
     };
   });
 
-  // All fetched reviews period
   if (reviews.length) {
     const stars = {1:0,2:0,3:0,4:0,5:0};
-    reviews.forEach(r => stars[r.score]++);
+    reviews.forEach(r => { if (stars[r.score] !== undefined) stars[r.score]++; });
     const avg = reviews.reduce((s, r) => s + r.score, 0) / reviews.length;
-    const fromDate = new Date(oldestDate).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
-    const toDate   = new Date(now).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
-
     result[`All Fetched (${reviews.length} reviews)`] = {
       days: null,
-      dateRange: `${fromDate} → ${toDate}`,
+      dateRange: `${fmt(oldestDate)} → ${fmt(now)}`,
       total: reviews.length,
       avg: Math.round(avg * 100) / 100,
       '5star': stars[5], '4star': stars[4],
@@ -77,7 +82,9 @@ function buildPeriodBreakdown(reviews) {
 
   return result;
 }
-  
+
+
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
