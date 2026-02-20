@@ -77,91 +77,7 @@ function buildPeriodBreakdown(reviews) {
 
   return result;
 }
-
-// --- SENTENCE SPLIT ---
-function splitIntoSentences(text) {
-  return text
-    .split(/[.!?]/)
-    .map(s => s.trim())
-    .filter(s => s.length > 20);
-}
-
-// --- SENTIMENT ---
-const POSITIVE_HINTS = ['easy','fast','smooth','helpful','love','great','excellent'];
-const NEGATIVE_HINTS = ['not','fail','error','issue','problem','slow','crash','bug'];
-
-function classifySentence(sentence) {
-  const s = sentence.toLowerCase();
-  if (NEGATIVE_HINTS.some(w => s.includes(w))) return 'negative';
-  if (POSITIVE_HINTS.some(w => s.includes(w))) return 'positive';
-  return 'neutral';
-}
-
-// --- THEMES ---
-const THEMES = {
-  performance: ['slow','fast','lag','crash','loading'],
-  login_auth: ['login','otp','password','sign in'],
-  payments: ['payment','upi','refund','transaction'],
-  support: ['support','customer','help'],
-  ui_ux: ['ui','interface','design','navigation'],
-  features: ['feature','update','option'],
-  stability: ['bug','error','issue','fail']
-};
-
-function detectThemes(sentence) {
-  const s = sentence.toLowerCase();
-  return Object.entries(THEMES)
-    .filter(([_, words]) => words.some(w => s.includes(w)))
-    .map(([theme]) => theme);
-}
-//Build theme insights
-function buildThemeInsights(reviews) {
-  const insights = {};
-
-  reviews.forEach(r => {
-    if (!r.content) return;
-    const weight = r.thumbsUpCount || 1;
-
-    splitIntoSentences(r.content).forEach(sentence => {
-      const sentiment = classifySentence(sentence);
-      if (sentiment === 'neutral') return;
-
-      detectThemes(sentence).forEach(theme => {
-        if (!insights[theme]) {
-          insights[theme] = { positive: 0, negative: 0 };
-        }
-        insights[theme][sentiment] += weight;
-      });
-    });
-  });
-
-  return insights;
-}
-
-//Generate final summary text
-
-function summarizeThemes(themeInsights) {
-  const likes = [];
-  const improve = [];
-
-  Object.entries(themeInsights).forEach(([theme, data]) => {
-    if (data.positive > data.negative) likes.push(theme);
-    else if (data.negative > data.positive) improve.push(theme);
-  });
-
-  return {
-    whatUsersLike: likes.slice(0, 5),
-    whatUsersWantImproved: improve.slice(0, 5),
-    summaryText:
-      `Users appreciate ${likes.slice(0,2).join(' and ') || 'some aspects'}, ` +
-      `but face issues with ${improve.slice(0,2).join(' and ') || 'certain areas'}.`
-  };
-}
-
-
-
-
-
+  
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -169,10 +85,10 @@ module.exports = async (req, res) => {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { appId, count = '200' } = req.query;
+  const { appId, count = '150' } = req.query;
   if (!appId) return res.status(400).json({ error: 'appId is required' });
 
-  const numCount = Math.min(parseInt(count) || 200, 200000);
+  const numCount = Math.min(parseInt(count) || 150, 200000);
 
   try {
     // App info
@@ -200,9 +116,6 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: `No reviews found for ${appId}` });
     }
 
-    const themeInsights = buildThemeInsights(allReviews);
-    const summary = summarizeThemes(themeInsights);
-
     const pos = allReviews.filter(r => r.score >= 4).length;
     const neg = allReviews.filter(r => r.score <= 2).length;
     const total = allReviews.length;
@@ -222,8 +135,6 @@ module.exports = async (req, res) => {
       negative:     neg,
       neutral:      total - pos - neg,
       sentiment,
-      insights: summary,          // 👈 ADD THIS
-      themeBreakdown: themeInsights, // 👈 OPTIONAL (for UI drilldown)
       topIssues:    extractPhrases(allReviews, [1, 2], 10),
       topGood:      extractPhrases(allReviews, [4, 5], 10),
       periodBreakdown: buildPeriodBreakdown(allReviews),
