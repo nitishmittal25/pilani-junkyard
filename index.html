@@ -507,6 +507,7 @@ function renderResults(data) {
     appName, appIcon, appRating, totalReviews, analysed,
     positive, negative, neutral, sentiment,
     topIssues, topGood, periodBreakdown, issueSummary, goodSummary,
+    periodBreakdown, lastReviewDate, oldestReviewDate,
     reviews: rvList
   } = data;
 
@@ -708,16 +709,17 @@ function exportCSV() {
     'Developer Reply', 'Helpful Votes', 'App Version'
   ];
 
-  const rows = reviews.map(r => [
-  csvCell(r.userName || ''),
-  r.score || '',
-  r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
-  csvCell(String(r.text || '')),
-  csvCell(String(r.replyText || '')),
-  r.replyDate ? new Date(r.replyDate).toLocaleDateString('en-IN') : '',
-  r.thumbsUp !== undefined ? r.thumbsUp : '',
-  csvCell(String(r.version || '')),
-]);
+   const rows = reviews.map(r => [
+    csvCell(r.userName),
+    r.score,
+    r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
+    csvCell(r.text),
+    csvCell(r.replyText),
+    r.replyDate ? new Date(r.replyDate).toLocaleDateString('en-IN') : '',
+    r.thumbsUp !== undefined ? r.thumbsUp : 0,
+    csvCell(r.version),
+  ]); 
+
 
   
 
@@ -736,10 +738,12 @@ function exportCSV() {
 // ═══════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════
+
 function csvCell(val) {
-  if (val === null || val === undefined) return '';
-  return '"' + String(val).replace(/"/g, '""') + '"';
-}
+  if (val === null || val === undefined) return '""';
+  const str = String(val).trim();
+  return '"' + str.replace(/"/g, '""') + '"';
+}  
 
 function escHtml(str) {
   return String(str)
