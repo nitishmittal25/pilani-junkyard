@@ -135,8 +135,12 @@ module.exports = async (req, res) => {
       negative:     neg,
       neutral:      total - pos - neg,
       sentiment,
+      lastReviewDate:   allReviews.length ? new Date(Math.max(...allReviews.map(r => new Date(r.at).getTime()))).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : null,
+      oldestReviewDate: allReviews.length ? new Date(Math.min(...allReviews.map(r => new Date(r.at).getTime()))).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : null,
       topIssues:    extractPhrases(allReviews, [1, 2], 10),
       topGood:      extractPhrases(allReviews, [4, 5], 10),
+      issueSummary: (() => { const p = extractPhrases(allReviews, [1,2], 5); return p.length ? `Users most commonly mention issues around: ${p.map(x=>x.phrase).join(', ')}. These appear repeatedly across 1★–2★ reviews.` : null; })(),
+      goodSummary:  (() => { const p = extractPhrases(allReviews, [4,5], 5); return p.length ? `Users frequently praise: ${p.map(x=>x.phrase).join(', ')}. These themes dominate 4★–5★ reviews.` : null; })(),
       periodBreakdown: buildPeriodBreakdown(allReviews),
       reviews: allReviews.map(r => ({
         userName:  r.userName || 'Anonymous',
