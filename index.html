@@ -506,7 +506,7 @@ function renderResults(data) {
   const {
     appName, appIcon, appRating, totalReviews, analysed,
     positive, negative, neutral, sentiment,
-    topIssues, topGood, periodBreakdown,
+    topIssues, topGood, periodBreakdown, issueSummary, goodSummary,
     reviews: rvList
   } = data;
 
@@ -638,12 +638,14 @@ function renderResults(data) {
       <div style="background:white;border:2.5px solid #fecdd3;border-radius:18px;padding:1.4rem;">
         <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.3rem;">⚠️ Top Issues</div>
         <div style="font-size:0.72rem;color:#78716c;font-weight:600;margin-bottom:1rem;">Most mentioned words in 1★–2★ reviews</div>
-        ${issueHTML || '<div style="color:#78716c;font-size:0.85rem;font-weight:600">Not enough negative reviews</div>'}
+        ${issueSummary ? `<div style="font-size:0.8rem;color:#78716c;line-height:1.6;background:#fff1f2;padding:0.7rem;border-radius:10px;margin-bottom:1rem">${escHtml(data.issueSummary)}</div>` : ''}
+        ${issueHTML || '<div style="color:#78716c;font-size:0.85rem;font-weight:600">No negative reviews in this set</div>'}
       </div>
       <div style="background:white;border:2.5px solid #bbf7d0;border-radius:18px;padding:1.4rem;">
         <div style="font-family:'Fraunces',serif;font-weight:900;font-size:0.95rem;margin-bottom:0.3rem;">✅ What Users Love</div>
         <div style="font-size:0.72rem;color:#78716c;font-weight:600;margin-bottom:1rem;">Most mentioned words in 4★–5★ reviews</div>
-        ${goodHTML || '<div style="color:#78716c;font-size:0.85rem;font-weight:600">Not enough positive reviews</div>'}
+        ${goodSummary ? `<div style="font-size:0.8rem;color:#78716c;line-height:1.6;background:#f0fdf4;padding:0.7rem;border-radius:10px;margin-bottom:1rem">${escHtml(data.goodSummary)}</div>` : ''}
+        ${goodHTML || '<div style="color:#78716c;font-size:0.85rem;font-weight:600">No positive reviews in this set</div>'}  
       </div>
     </div>`;
 
@@ -670,7 +672,7 @@ function renderResults(data) {
             <div class="rv-date">${dateStr}</div>
           </div>
         </div>
-        <div class="rv-text">${escHtml(r.text || '')}</div>
+        <div class="rv-text">${r.text ? escHtml(r.text) : '<span style="color:#c4b5a8;font-style:italic;font-size:0.82rem">No review text provided</span>'}</div>
         ${reply}
         ${r.thumbsUp ? `<div class="rv-foot"><span class="rv-thumbs">👍 ${r.thumbsUp} found this helpful</span></div>` : ''}
       </div>`;
@@ -707,15 +709,17 @@ function exportCSV() {
   ];
 
   const rows = reviews.map(r => [
-    csvCell(r.userName),
-    r.score,
-    r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
-    csvCell(r.text),
-    csvCell(r.replyText || ''),
-    r.replyDate ? new Date(r.replyDate).toLocaleDateString('en-IN') : '',
-    r.thumbsUp || 0,
-    csvCell(r.version || ''),
-  ]);
+  csvCell(r.userName || ''),
+  r.score || '',
+  r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
+  csvCell(String(r.text || '')),
+  csvCell(String(r.replyText || '')),
+  r.replyDate ? new Date(r.replyDate).toLocaleDateString('en-IN') : '',
+  r.thumbsUp !== undefined ? r.thumbsUp : '',
+  csvCell(String(r.version || '')),
+]);
+
+  
 
   const csv  = [headers, ...rows].map(row => row.join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
