@@ -1,27 +1,74 @@
 const gplay = require('google-play-scraper');
 
 const STOPWORDS = new Set([
-  'the','a','an','and','or','but','in','on','at','to','for','of','with',
-  'is','it','its','this','that','was','are','be','been','have','has','had',
-  'do','does','did','will','would','could','should','not','no','so','if',
-  'i','my','me','we','you','your','they','them','app','use','get','just',
-  'also','very','good','great','nice','bad','even','still','after','before',
-  'when','than','more','all','some','one','time','way','make','now','new',
-  'well','really','much','many','like','please','thank','thanks','this',
+  // ── Articles & determiners ──
+  'a','an','the','this','that','these','those',
+
+  // ── Prepositions ──
+  'in','on','at','to','from','for','of','with','by','about','as','into',
+  'over','after','before','between','under','above',
+
+  // ── Conjunctions ──
+  'and','or','but','so','if','while','because','though','although',
+
+  // ── Pronouns ──
+  'i','me','my','mine','we','us','our','you','your','yours',
+  'he','him','his','she','her','they','them','their','theirs',
+
+  // ── Auxiliary / helper verbs ──
+  'is','am','are','was','were','be','been','being',
+  'have','has','had','having',
+  'do','does','did','doing',
+
+  // ── Modals ──
+  'will','would','could','should','can','may','might','must',
+
+  // ── Common adverbs (low signal) ──
+  'very','really','quite','just','even','still','already','now',
+
+  // ── Quantifiers / vague words ──
+  'all','some','any','many','much','few','one','two','first','last',
+
+  // ── Politeness / filler ──
+  'please','thanks','thank','sorry',
+
+  // ── App-review boilerplate ──
+  'app','apps','application','version','update','updated','using','used',
+  'install','installed','download','downloaded','try','tried',
+
+  // ── Time fillers ──
+  'today','yesterday','tomorrow','day','days','time','times',
+
+  // ── Noise words ──
+  'etc','etcetera','something','anything','everything'
 ]);
 
 function extractPhrases(reviews, starRange, topN = 10) {
   const counts = {};
-  reviews.filter(r => starRange.includes(r.score)).forEach(r => {
+  const subset = reviews.filter(r => starRange.includes(r.score));
+
+  subset.forEach(r => {
     const text = (r.text || r.content || '').toLowerCase().replace(/[^a-z\s]/g, ' ');
     const tokens = text.split(/\s+/).filter(t => t.length > 3 && !STOPWORDS.has(t));
-    tokens.forEach(t => { counts[t] = (counts[t] || 0) + 1; });
-    for (let i = 0; i < tokens.length - 1; i++) {
-      const phrase = tokens[i] + ' ' + tokens[i+1];
-      counts[phrase] = (counts[phrase] || 0) + 1;
+
+    // Count 2-word and 3-word phrases first (more meaningful)
+    for (let i = 0; i < tokens.length - 2; i++) {
+      const phrase3 = tokens[i] + ' ' + tokens[i+1] + ' ' + tokens[i+2];
+      counts[phrase3] = (counts[phrase3] || 0) + 1;
     }
+    for (let i = 0; i < tokens.length - 1; i++) {
+      const phrase2 = tokens[i] + ' ' + tokens[i+1];
+      counts[phrase2] = (counts[phrase2] || 0) + 1;
+    }
+    // Single words only if length > 5 (avoids short meaningless words)
+    tokens.filter(t => t.length > 5).forEach(t => {
+      counts[t] = (counts[t] || 0) + 1;
+    });
   });
+
+  // Filter out phrases that appear only once
   return Object.entries(counts)
+    .filter(([_, c]) => c > 1)
     .sort((a, b) => b[1] - a[1])
     .slice(0, topN)
     .map(([phrase, count]) => ({ phrase, count }));
@@ -92,10 +139,10 @@ module.exports = async (req, res) => {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { appId, count = '150' } = req.query;
+  const { appId, count = '150', rating = '0', sort = '2' } = req.query;
   if (!appId) return res.status(400).json({ error: 'appId is required' });
 
-  const numCount = Math.min(parseInt(count) || 150, 200000);
+  const numCount = Math.min(parseInt(count) || 200, 200000);
 
   try {
     // App info
@@ -103,20 +150,33 @@ module.exports = async (req, res) => {
     try { info = await gplay.app({ appId, lang: 'en', country: 'in' }); } catch(_) {}
 
     // Fetch reviews in batches
+
+
+    const sortMap = {
+      '1': gplay.sort.HELPFULNESS,
+      '2': gplay.sort.NEWEST,
+      '3': gplay.sort.RATING,
+    };
+
     let allReviews = [], token = null;
     while (allReviews.length < numCount) {
       const batch = Math.min(200, numCount - allReviews.length);
       const reviewResult = await gplay.reviews({
         appId, lang: 'en', country: 'in',
-        sort: gplay.sort.NEWEST,
-        count: batch,
+        sort: sortMap[sort] || gplay.sort.NEWEST,
+        num: batch,
         continuationToken: token,
       });
-    const result = reviewResult.data;
-    token = reviewResult.nextPaginationToken;
+      const result = reviewResult.data;
+      token = reviewResult.nextPaginationToken;
       if (!result || !result.length) break;
       allReviews = allReviews.concat(result);
       if (!token) break;
+    }
+
+    // Apply star filter if selected
+    if (rating !== '0') {
+      allReviews = allReviews.filter(r => r.score === parseInt(rating));
     }
 
     if (!allReviews.length) {
