@@ -474,8 +474,10 @@ async function fetchReviews() {
 
   setStatus('loading', 'Connecting to Google Play — this takes 10–20 seconds for large fetches…');
   document.getElementById('results').innerHTML = '';
-
-  const params = new URLSearchParams({ appId, count });
+  
+  const rating = document.getElementById('star-filter').value;
+  const sort   = document.getElementById('sort').value;
+  const params = new URLSearchParams({ appId, count, rating, sort });
 
   try {
     const res  = await fetch(`${API_URL}?${params}`);
@@ -670,10 +672,11 @@ function renderResults(data) {
           </div>
           <div class="rv-right">
             <div class="rv-stars s${r.score}">${stars}</div>
-            <div class="rv-date">${dateStr}</div>
+            <div class="rv-date">${dateStr || 'Date unavailable'}</div>
           </div>
         </div>
         <div class="rv-text">${r.text ? escHtml(r.text) : '<span style="color:#c4b5a8;font-style:italic;font-size:0.82rem">No review text provided</span>'}</div>
+        ${dateStr ? `<div style="font-size:0.7rem;color:#78716c;font-weight:700;margin-top:0.4rem;">📅 ${dateStr}</div>` : ''}
         ${reply}
         ${r.thumbsUp ? `<div class="rv-foot"><span class="rv-thumbs">👍 ${r.thumbsUp} found this helpful</span></div>` : ''}
       </div>`;
@@ -705,8 +708,8 @@ function exportCSV() {
   const { appName, reviews } = lastData;
 
   const headers = [
-    'User Name', 'Star Rating', 'Date', 'Review Text',
-    'Developer Reply', 'Helpful Votes', 'App Version'
+    'User Name', 'Star Rating', 'Review Date', 'Review Text',
+    'Developer Reply', 'Reply Date', 'Helpful Votes', 'App Version'
   ];
 
    const rows = reviews.map(r => [
@@ -714,16 +717,17 @@ function exportCSV() {
     r.score,
     r.date ? new Date(r.date).toLocaleDateString('en-IN') : '',
     csvCell(r.text),
-    csvCell(r.replyText),
+    csvCell(r.replyText || ''),
     r.replyDate ? new Date(r.replyDate).toLocaleDateString('en-IN') : '',
     r.thumbsUp !== undefined ? r.thumbsUp : 0,
     csvCell(r.version),
   ]); 
 
 
-  
-
-  const csv  = [headers, ...rows].map(row => row.join(',')).join('\n');
+  const oldestDate = lastData.oldestReviewDate || '';
+  const newestDate = lastData.lastReviewDate || '';
+  const dateRangeRow = [`"Reviews from: ${oldestDate} to ${newestDate}"`, '', '', '', '', '', '', ''];
+  const csv = [dateRangeRow, headers, ...rows].map(row => row.join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
