@@ -195,7 +195,7 @@ module.exports = async (req, res) => {
       score:     r.score,
       text:      r.content || r.text || '',
       date:      r.at ? new Date(r.at).toISOString() : (r.date ? new Date(r.date).toISOString() : null),
-      thumbsUp:  r.thumbsUpCount || 0,
+      thumbsUp:  r.thumbsUpCount || r.thumbsUp || 0,
       version:   r.reviewCreatedVersion || r.appVersion || '',
       replyText: r.replyContent || '',
       replyDate: r.repliedAt ? (r.repliedAt instanceof Date ? r.repliedAt : new Date(r.repliedAt)).toISOString() : '',
