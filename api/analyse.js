@@ -13,7 +13,7 @@ const STOPWORDS = new Set([
 function extractPhrases(reviews, starRange, topN = 10) {
   const counts = {};
   reviews.filter(r => starRange.includes(r.score)).forEach(r => {
-    const text = (r.content || '').toLowerCase().replace(/[^a-z\s]/g, ' ');
+    const text = (r.text || r.content || '').toLowerCase().replace(/[^a-z\s]/g, ' ');
     const tokens = text.split(/\s+/).filter(t => t.length > 3 && !STOPWORDS.has(t));
     tokens.forEach(t => { counts[t] = (counts[t] || 0) + 1; });
     for (let i = 0; i < tokens.length - 1; i++) {
@@ -31,7 +31,7 @@ function buildPeriodBreakdown(reviews) {
   const now = Date.now();
   const PERIODS = [7, 30, 60, 90, 120, 180, 270, 365];
   // Only include periods up to how far back the reviews actually go
-  const oldestDate = Math.min(...reviews.map(r => new Date(r.at).getTime()));
+  const oldestDate = Math.min(...reviews.map(r => (r.at instanceof Date ? r.at :(r.at instanceof Date ? r.at : new Date(r.at)).getTime()));
   const actualDays = Math.ceil((now - oldestDate) / (86400 * 1000));
 
   const result = {};
@@ -116,9 +116,29 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: `No reviews found for ${appId}` });
     }
 
-    const pos = allReviews.filter(r => r.score >= 4).length;
-    const neg = allReviews.filter(r => r.score <= 2).length;
-    const total = allReviews.length;
+
+
+  // ── Map reviews first so all fields are correct ──
+    const mappedReviews = allReviews.map(r => ({
+      userName:  r.userName || 'Anonymous',
+      score:     r.score,
+      text:      r.content || r.text || '',
+      date:      r.at ? (r.at instanceof Date ? r.at : new Date(r.at)).toISOString() : null,
+      thumbsUp:  r.thumbsUpCount || 0,
+      version:   r.reviewCreatedVersion || '',
+      replyText: r.replyContent || '',
+      replyDate: r.repliedAt ? (r.repliedAt instanceof Date ? r.repliedAt : new Date(r.repliedAt)).toISOString() : '',
+    }));
+
+    // ── Run analysis on mapped reviews (so r.text is correct) ──
+    const topIssues    = extractPhrases(mappedReviews, [1, 2], 10);
+    const topGood      = extractPhrases(mappedReviews, [4, 5], 10);
+    const issueSummary = topIssues.length ? `Users most commonly mention: ${topIssues.slice(0,5).map(x => x.phrase).join(', ')}. These appear repeatedly in 1★–2★ reviews.` : null;
+    const goodSummary  = topGood.length   ? `Users frequently praise: ${topGood.slice(0,5).map(x => x.phrase).join(', ')}. These themes dominate 4★–5★ reviews.` : null;
+
+    const pos   = mappedReviews.filter(r => r.score >= 4).length;
+    const neg   = mappedReviews.filter(r => r.score <= 2).length;
+    const total = mappedReviews.length;
 
     const sentiment = pos / total > 0.6 ? 'positive'
                     : pos / total < 0.4 ? 'negative'
@@ -126,33 +146,24 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({
       appId,
-      appName:      info.title      || appId,
-      appIcon:      info.icon       || null,
-      appRating:    info.score      || null,
-      totalReviews: info.reviews    || null,
+      appName:      info.title   || appId,
+      appIcon:      info.icon    || null,
+      appRating:    info.score   || null,
+      totalReviews: info.ratings || info.reviews || null,
       analysed:     total,
       positive:     pos,
       negative:     neg,
       neutral:      total - pos - neg,
       sentiment,
-      lastReviewDate:   allReviews.length ? new Date(Math.max(...allReviews.map(r => new Date(r.at).getTime()))).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : null,
-      oldestReviewDate: allReviews.length ? new Date(Math.min(...allReviews.map(r => new Date(r.at).getTime()))).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : null,
-      topIssues:    extractPhrases(allReviews, [1, 2], 10),
-      topGood:      extractPhrases(allReviews, [4, 5], 10),
-      issueSummary: (() => { const p = extractPhrases(allReviews, [1,2], 5); return p.length ? `Users most commonly mention issues around: ${p.map(x=>x.phrase).join(', ')}. These appear repeatedly across 1★–2★ reviews.` : null; })(),
-      goodSummary:  (() => { const p = extractPhrases(allReviews, [4,5], 5); return p.length ? `Users frequently praise: ${p.map(x=>x.phrase).join(', ')}. These themes dominate 4★–5★ reviews.` : null; })(),
-      periodBreakdown: buildPeriodBreakdown(allReviews),
-      reviews: allReviews.map(r => ({
-        userName:  r.userName || 'Anonymous',
-        score:     r.score,
-        text:      r.content  || '',
-        date:      r.at ? new Date(r.at).toISOString() : null,
-        thumbsUp:  r.thumbsUpCount || '',
-        version:   r.reviewCreatedVersion || '',
-        replyText: r.replyContent || '',
-        replyDate: r.repliedAt ? new Date(r.repliedAt).toISOString() : '',
-      })),
+      topIssues,
+      topGood,
+      issueSummary,
+      goodSummary,
+      periodBreakdown: buildPeriodBreakdown(mappedReviews),
+      reviews: mappedReviews,
     });
+    
+
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
