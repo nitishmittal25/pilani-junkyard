@@ -183,11 +183,9 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: `No reviews found for ${appId}` });
     }
 
-  // Temporary debug — remove after fixing
-    if (allReviews.length > 0) {
-      console.log('First review raw fields:', JSON.stringify(Object.keys(allReviews[0])));
-      console.log('First review raw data:', JSON.stringify(allReviews[0]));
-    }
+ 
+
+    console.log('RAW REVIEW FIELDS:', JSON.stringify(allReviews[0]));
 
   // ── Map reviews first so all fields are correct ──
     const mappedReviews = allReviews.map(r => ({
