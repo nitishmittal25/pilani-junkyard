@@ -678,7 +678,7 @@ function renderResults(data) {
         <div class="rv-text">${r.text ? escHtml(r.text) : '<span style="color:#c4b5a8;font-style:italic;font-size:0.82rem">No review text provided</span>'}</div>
         ${dateStr ? `<div style="font-size:0.7rem;color:#78716c;font-weight:700;margin-top:0.4rem;">📅 ${dateStr}</div>` : ''}
         ${reply}
-        ${r.thumbsUp ? `<div class="rv-foot"><span class="rv-thumbs">👍 ${r.thumbsUp} found this helpful</span></div>` : ''}
+        ${r.thumbsUp > 0 ? `<div class="rv-foot"><span class="rv-thumbs">👍 ${r.thumbsUp} ${r.thumbsUp === 1 ? 'person' : 'people'} found this helpful</span></div>` : ''}
       </div>`;
   }).join('');
 
