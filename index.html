@@ -334,15 +334,17 @@
         <div class="fg">
           <label class="fl">Number of Reviews</label>
           <select class="fs" id="count" onchange="toggleCustomCount(this)">
+            <option value="40">40 reviews</option>
+            <option value="80">80 reviews</option>
             <option value="150" selected>150 reviews</option>
             <option value="300">300 reviews</option>
-            <option value="600">600 reviews</option>
-            <option value="900">900 reviews</option>
-            <option value="1500">1,500 reviews</option>
-            <option value="3000">3,000 reviews (slow)</option>
+            <option value="500">500 reviews</option>
+            <option value="1000">1,000 reviews</option>
+            <option value="2000">2,000 reviews</option>
+            <option value="5000">5,000 reviews (slow)</option>
             <option value="custom">Custom number...</option>
           </select>
-          <input class="fi" id="custom-count" type="number" min="1" max="10000"
+          <input class="fi" id="custom-count" type="number" min="1" max="5000"
             placeholder="Enter number e.g. 750"
             style="display:none;margin-top:0.5rem"/>
         </div>
@@ -355,36 +357,6 @@
       <div class="status-bar" id="status">
         <div class="spin"></div>
         <span id="status-text">Fetching reviews from Google Play…</span>
-      </div>
-
-      <!-- ── SUMMARY INSIGHTS ── -->
-      <div id="summary-section" style="display:none;margin-top:1.8rem;margin-bottom:2rem;">
-        <div style="background:white;border:2.5px solid var(--border);border-radius:18px;padding:1.5rem;">
-    
-          <div style="font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;margin-bottom:0.6rem;">
-            🧠 Review Summary
-          </div>
-
-          <p id="summaryText" style="font-size:0.9rem;font-weight:600;color:var(--ink2);line-height:1.6;margin-bottom:1.2rem;"></p>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;">
-      
-            <div>
-              <div style="font-weight:800;font-size:0.75rem;text-transform:uppercase;color:#059669;margin-bottom:0.4rem;">
-                What users like
-              </div>
-              <ul id="likes" style="padding-left:1.1rem;font-size:0.85rem;font-weight:600;color:var(--ink2);"></ul>
-            </div>
-
-            <div>
-              <div style="font-weight:800;font-size:0.75rem;text-transform:uppercase;color:#e11d48;margin-bottom:0.4rem;">
-                What can be improved
-              </div>
-              <ul id="improve" style="padding-left:1.1rem;font-size:0.85rem;font-weight:600;color:var(--ink2);"></ul>
-            </div>
-
-          </div>
-        </div>
       </div>
 
       <div id="results"></div>
@@ -488,7 +460,7 @@ async function fetchReviews() {
   const appId = document.getElementById('app-id').value.trim();
   const countSel = document.getElementById('count').value;
   const count = countSel === 'custom'
-    ? (parseInt(document.getElementById('custom-count').value) || 200)
+    ? (parseInt(document.getElementById('custom-count').value) || 150)
     : countSel;
 
   if (!appId) {
@@ -500,38 +472,15 @@ async function fetchReviews() {
   btn.disabled = true;
   btn.innerHTML = '<div style="width:18px;height:18px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:rot 0.7s linear infinite;flex-shrink:0"></div> Fetching from Google Play…';
 
-  setStatus('loading', `Fetching ${count} reviews — this may take up to 30 seconds for large sets…`);
+  setStatus('loading', 'Connecting to Google Play — this takes 10–20 seconds for large fetches…');
   document.getElementById('results').innerHTML = '';
 
-  //const params = new URLSearchParams({ appId, count });
+  const params = new URLSearchParams({ appId, count });
 
   try {
-    const res  = await fetch(`${API_URL}?${new URLSearchParams({ appId, count })}`);
+    const res  = await fetch(`${API_URL}?${params}`);
     const data = await res.json();
 
-    const insights = data.insights;
-    document.getElementById('summary-section').style.display = 'block';
-    document.getElementById("summaryText").innerText =
-      insights.summaryText;
-    
-    const likeList = document.getElementById("likes");
-    likeList.innerHTML = "";
-
-  insights.whatUsersLike.forEach(item => {
-    const li = document.createElement("li");
-    li.innerText = item.replace('_', ' ');
-    likeList.appendChild(li);
-  });
-
-  const improveList = document.getElementById("improve");
-  improveList.innerHTML = "";
-
-  insights.whatUsersWantImproved.forEach(item => {
-    const li = document.createElement("li");
-    li.innerText = item.replace('_', ' ');
-    improveList.appendChild(li);
-  });
-    
     if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
 
     lastData = data;
@@ -729,7 +678,6 @@ function renderResults(data) {
 
   // ── Assemble everything ──
   document.getElementById('results').innerHTML = `
-  document.getElementById('summary-section').style.display = 'none';
     ${headerHTML}
     ${sentimentHTML}
     ${periodHTML}
