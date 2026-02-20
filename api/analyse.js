@@ -191,13 +191,15 @@ module.exports = async (req, res) => {
     const mappedReviews = allReviews.map(r => ({
       userName:  r.userName || 'Anonymous',
       score:     r.score,
-      text:      r.content || r.text || '',
-      date:      r.at ? new Date(r.at).toISOString() : (r.date ? new Date(r.date).toISOString() : null),
+      text:      r.text      || r.content || '',
+      date:      r.date ? new Date(r.date).toISOString() : null,
       thumbsUp:  r.thumbsUpCount || r.thumbsUp || 0,
-      version:   r.reviewCreatedVersion || r.appVersion || '',
-      replyText: r.replyContent || '',
-      replyDate: r.repliedAt ? (r.repliedAt instanceof Date ? r.repliedAt : new Date(r.repliedAt)).toISOString() : '',
+      version: r.version || r.reviewCreatedVersion || '',
+      replyText: r.replyText || r.replyContent || '',
+      replyDate: r.replyDate ? new Date(r.replyDate).toISOString() : '',
     }));
+
+    
 
     // ── Run analysis on mapped reviews (so r.text is correct) ──
     const topIssues    = extractPhrases(mappedReviews, [1, 2], 10);
