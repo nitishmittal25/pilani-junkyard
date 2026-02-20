@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LQSN2EKWKV"></script>
+  <script src="https://www.googletagmanager.com/gtag/js?id=G-LQSN2EKWKV"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -496,7 +496,9 @@ async function fetchReviews() {
     lastData = data;
     clearStatus();
     renderResults(data);
-    gtag('event', 'fetch_reviews', { app_id: appId, count: count });
+    if (typeof gtag === 'function') {
+      gtag('event', 'fetch_reviews', { app_id: appId, count: String(count) });
+    }
 
   } catch (err) {
     if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.message.includes('Load failed')) {
