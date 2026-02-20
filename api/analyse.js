@@ -228,6 +228,8 @@ module.exports = async (req, res) => {
       goodSummary,
       periodBreakdown: buildPeriodBreakdown(mappedReviews),
       reviews: mappedReviews,
+      lastReviewDate: mappedReviews.length ? new Date(Math.max(...mappedReviews.map(r => new Date(r.date).getTime()))).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : null,
+      oldestReviewDate: mappedReviews.length ? new Date(Math.min(...mappedReviews.map(r => new Date(r.date).getTime()))).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : null,
     });
     
 
